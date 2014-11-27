@@ -44,8 +44,8 @@ inline bool operator<(const mctop_t & top1, const mctop_t & top2)
   bool less = top1.size() < top2.size();
   for(int i=0;i<top1.size();i++)
   {
-    less = less && top1.pdgid[i] < top2.pdgid[i];
-    less = less && top1.mother[i] < top2.mother[i];
+    less = less && (top1.pdgid[i] != top2.pdgid[i]);
+    less = less && (top1.mother[i] != top2.mother[i]);
   }
   return less;
 }
