@@ -53,18 +53,18 @@ int main(int argc, char ** argv)
     for(int i=0;i<top.pdgid.size();i++)
     {
       std::map<int,std::string>::iterator it = PdgTable.find(top.pdgid[i]);
-      if(it!=PdgTable.end()) std::cout << std::setw(10) << PdgTable[top.pdgid[i]];
-      else std::cout << std::setw(10) << top.pdgid[i];
+      if(it!=PdgTable.end()) std::cout << std::setw(13) << PdgTable[top.pdgid[i]];
+      else std::cout << std::setw(13) << top.pdgid[i];
     }
     std::cout << std::endl;
     for(int i=0;i<top.pdgid.size();i++)
     {
-      std::cout << std::setw(10) << top.pdgid[i];
+      std::cout << std::setw(13) << top.pdgid[i];
     }
     std::cout << std::endl;
     for(int i=0;i<top.mother.size();i++)
     {
-      std::cout << std::setw(10) << top.mother[i];
+      std::cout << std::setw(13) << top.mother[i];
     }
     std::cout << std::endl;
     for(int i=0;i<80;i++) std::cout << "=";
