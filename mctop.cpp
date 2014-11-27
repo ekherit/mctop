@@ -51,6 +51,7 @@ int main(int argc, char ** argv)
       if(it!=PdgTable.end()) std::cout << std::setw(10) << PdgTable[top.pdgid[i]];
       else std::cout << std::setw(10) << top.pdgid[i];
     }
+    std::cout << std::endl;
     for(int i=0;i<top.pdgid.size();i++)
     {
       std::cout << std::setw(10) << top.pdgid[i];
