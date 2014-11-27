@@ -16,12 +16,18 @@ int main(int argc, char ** argv)
     mctop.AddFile(argv[i]);
   }
   std::map<mctop_t,Long64_t> mapTop = mctop.Count();
-  
-  int ntop = 0;
+  //resort the map
+  std::multimap<Long64_t, mctop_t> Tops;
   for(std::map<mctop_t,Long64_t>::iterator it=mapTop.begin(); it!=mapTop.end(); it++)
   {
-    mctop_t top = it->first;
-    std::cout << "Topology " << ntop << " count " << it->second << " times,  mcidx = " << top.pdgid.size() << ":" << std::endl;
+    Tops.insert(std::pair<Long64_t, mctop_t>(it->second,it->first));
+  }
+  int ntop = 0;
+  //for(std::map<mctop_t,Long64_t>::iterator it=mapTop.begin(); it!=mapTop.end(); it++)
+  for(std::map<Long64_t,mctop_t>::reverse_iterator it=Tops.rbegin(); it!=Tops.rend(); it++)
+  {
+    mctop_t top = it->second;
+    std::cout << "Topology " << ntop << " count " << it->first << " times,  mcidx = " << top.pdgid.size() << ":" << std::endl;
     for(int i=0;i<top.pdgid.size();i++)
     {
       std::cout << std::setw(10) << top.pdgid[i];

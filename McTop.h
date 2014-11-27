@@ -12,7 +12,10 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <stdexcept>
+#include <cmath>
+#include <algorithm>
 
+#include <boost/crc.hpp>
 
 struct mctop_t
 {
@@ -26,6 +29,15 @@ struct mctop_t
     }
     return pdgid.size();
   }
+
+  Long64_t hash(void) const
+  {
+    boost::crc_32_type crc;
+    crc = std::for_each(pdgid.begin(),pdgid.end(),crc);
+    crc = std::for_each(mother.begin(),mother.end(),crc);
+    return crc.checksum();
+  };
+
 };
 
 inline bool operator==(const mctop_t & top1, const mctop_t & top2)
@@ -39,16 +51,12 @@ inline bool operator==(const mctop_t & top1, const mctop_t & top2)
   return true;
 }
 
-//inline bool operator<(const mctop_t & top1, const mctop_t & top2)
-//{
-//  bool less = top1.size() < top2.size();
-//  for(int i=0;i<top1.size();i++)
-//  {
-//    less = less && (top1.pdgid[i] != top2.pdgid[i]);
-//    less = less && (top1.mother[i] != top2.mother[i]);
-//  }
-//  return less;
-//}
+
+inline bool operator<(const mctop_t & top1, const mctop_t & top2)
+{
+  return top1.hash() < top2.hash();
+};
+
 
 class McTop
 {

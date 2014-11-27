@@ -27,6 +27,7 @@ std::map<mctop_t,Long64_t> McTop::Count()
         top.pdgid[i]=pdgid[i];
         top.mother[i]=motheridx[i];
       }
+      //std::cout << hash(top) << std::endl;
       TopMap[top]++;
    }
    std::cout << "Found " << TopMap.size() << " topologies" << std::endl;

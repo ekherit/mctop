@@ -5,7 +5,7 @@ CXXFLAGS = `root-config --cflags`
 
 BINDIR=./
 
-mctop : McTop.o 
+mctop : McTop.o  mctop.cpp
 		g++ -o $(BINDIR)/mctop $(CXXFLAGS)  mctop.cpp $(LIBS) McTop.o
 
 McTop.o : McTop.cpp McTop.h
