@@ -24,12 +24,12 @@ int main(int argc, char ** argv)
     std::cout << "Topology " << ntop << " count " << it->second << " times,  mcidx = " << top.pdgid.size() << ":" << std::endl;
     for(int i=0;i<top.pdgid.size();i++)
     {
-      std::cout << std::setw(5) << top.pdgid[i];
+      std::cout << std::setw(10) << top.pdgid[i];
     }
     std::cout << std::endl;
     for(int i=0;i<top.mother.size();i++)
     {
-      std::cout << std::setw(5) << top.mother[i];
+      std::cout << std::setw(10) << top.mother[i];
     }
     std::cout << std::endl;
     for(int i=0;i<80;i++) std::cout << "=";
