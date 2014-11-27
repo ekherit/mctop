@@ -27,8 +27,23 @@ std::map<mctop_t,Long64_t> McTop::Count()
         top.pdgid[i]=pdgid[i];
         top.mother[i]=motheridx[i];
       }
+      mctop_t ntop = top;
+      for(int i=0;i<indexmc; i++)
+      {
+        if(ntop.pdgid[i]==100443 || ntop.pdgid[i]==443) continue;
+        ntop.pdgid[i]=-ntop.pdgid[i];
+        ntop.mother[i]=motheridx[i];
+      }
       //std::cout << hash(top) << std::endl;
-      TopMap[top]++;
+      std::map<mctop_t, Long64_t>::iterator it;
+      it = TopMap.find(top);
+      if(it==TopMap.end())
+      {
+        it = TopMap.find(ntop);
+        if(it==TopMap.end()) it = TopMap.insert(it,std::pair<mctop_t, Long64_t>(top,0));
+      }
+      it->second++;
+      //TopMap[top]++;
    }
    std::cout << "Found " << TopMap.size() << " topologies" << std::endl;
    return TopMap;
