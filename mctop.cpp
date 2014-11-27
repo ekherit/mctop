@@ -36,6 +36,7 @@ int main(int argc, char ** argv)
   PdgTable[-313]="-K*(892)0";
   PdgTable[313]="K*(892)0";
   PdgTable[10311]="K0*(1430)0";
+  PdgTable[-10311]="-K0*(1430)0";
   PdgTable[113]="rho(770)0";
   PdgTable[-113]="-rho(770)0";
   PdgTable[213]="rho(770)+";
