@@ -12,7 +12,6 @@ std::map<mctop_t,Long64_t> McTop::Count()
 
    Long64_t nentries = fChain->GetEntriesFast();
    std::cout << "Total number of entries: " <<  nentries << std::endl;
-
    std::map<mctop_t, Long64_t> TopMap;
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++)
@@ -30,4 +29,6 @@ std::map<mctop_t,Long64_t> McTop::Count()
       }
       TopMap[top]++;
    }
+   std::cout << "Found " << TopMap.size() << " topologies" << std::endl;
+   return TopMap;
 }

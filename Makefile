@@ -1,9 +1,9 @@
 all : mctop
 
 LIBS = `root-config --libs` -lMinuit 
-CXXFLAGS = `root-config --cflags`  -std=c++0x 
+CXXFLAGS = `root-config --cflags` 
 
-BINDIR=$(HOME)/work/bin
+BINDIR=./
 
 mctop : McTop.o 
 		g++ -o $(BINDIR)/mctop $(CXXFLAGS)  mctop.cpp $(LIBS) McTop.o
@@ -12,4 +12,4 @@ McTop.o : McTop.cpp McTop.h
 		g++ -o McTop.o $(CXXFLAGS) -c McTop.cpp 
 	
 clean :
-		rm $(BINDIR)/mctop
+		rm $(BINDIR)/mctop *.o
