@@ -47,7 +47,7 @@ inline bool operator<(const mctop_t & top1, const mctop_t & top2)
     less = less && top1.pdgid[i] < top2.pdgid[i];
     less = less && top1.mother[i] < top2.mother[i];
   }
-  return less
+  return less;
 }
 
 class McTop
