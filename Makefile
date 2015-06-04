@@ -3,7 +3,7 @@ all : mctop
 LIBS = `root-config --libs` -lMinuit 
 CXXFLAGS = `root-config --cflags` 
 
-BINDIR=./
+BINDIR=$(HOME)/work/bin
 
 mctop : McTop.o  mctop.cpp
 		g++ -o $(BINDIR)/mctop $(CXXFLAGS)  mctop.cpp $(LIBS) McTop.o

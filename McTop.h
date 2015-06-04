@@ -13,6 +13,7 @@
 #include <TFile.h>
 #include <stdexcept>
 #include <cmath>
+#include <iostream>
 #include <algorithm>
 
 #include <boost/crc.hpp>

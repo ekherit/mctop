@@ -8,11 +8,16 @@
 
 int main(int argc, char ** argv)
 {
-  McTop mctop("mctopo");
-  std::cout << "Loading files:"<< std::endl;
-  for(int i=1;i<argc; i++)
+  if(argc<3) 
   {
-    std::cout << argv[i] << std::endl;
+    std::cout << "Usage: mctop <mctopo_tree_name> <file1> [file2] .. [fileN]" << std::endl;
+    exit(1);
+  }
+  McTop mctop(argv[1]);
+  std::cout << "Loading files:"<< std::endl;
+  for(int i=2;i<argc; i++)
+  {
+    std::cout << "Adding file: " << argv[i] << std::endl;
     mctop.AddFile(argv[i]);
   }
   std::map<mctop_t,Long64_t> mapTop = mctop.Count();
@@ -47,10 +52,12 @@ int main(int argc, char ** argv)
   }
   int ntop = 0;
   //for(std::map<mctop_t,Long64_t>::iterator it=mapTop.begin(); it!=mapTop.end(); it++)
+  Long64_t event_counter=0;
   for(std::map<Long64_t,mctop_t>::reverse_iterator it=Tops.rbegin(); it!=Tops.rend(); it++)
   {
     mctop_t top = it->second;
     std::cout << "Topology " << ntop << " count " << it->first << " times,  mcidx = " << top.pdgid.size() << ":" << std::endl;
+    event_counter+=it->first;
     for(int i=0;i<top.pdgid.size();i++)
     {
       std::map<int,std::string>::iterator it = PdgTable.find(top.pdgid[i]);
@@ -71,5 +78,12 @@ int main(int argc, char ** argv)
     for(int i=0;i<80;i++) std::cout << "=";
     std::cout << std::endl;
     ntop++;
+  }
+  std::cout << "Total number of events: " << event_counter << std::endl;
+  if(!Tops.empty())
+  {
+    std::cout << "Found " << Tops.size() << " different topologies" << std::endl;
+    std::cout << "Most probable topology: " << Tops.rbegin()->first << std::endl;
+    std::cout << "Other topologies: " << event_counter - Tops.rbegin()->first << std::endl;
   }
 };
