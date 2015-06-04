@@ -46,6 +46,11 @@ int main(int argc, char ** argv)
   PdgTable[-113]="-rho(770)0";
   PdgTable[213]="rho(770)+";
   PdgTable[-213]="rho(770)-";
+  PdgTable[9050225]="f2(2150)";
+  PdgTable[225]="f2(1270)";
+  PdgTable[221]="eta";
+  PdgTable[229]="f4(2050)";
+  PdgTable[315]="K2*(1430)0";
   for(std::map<mctop_t,Long64_t>::iterator it=mapTop.begin(); it!=mapTop.end(); it++)
   {
     Tops.insert(std::pair<Long64_t, mctop_t>(it->second,it->first));
