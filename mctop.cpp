@@ -14,7 +14,6 @@
 
 int main(int argc, char ** argv)
 {
-  std::cout << PdgTable[-22] << std::endl;
   if(argc<3) 
   {
     std::cout << "Usage: mctop <mctopo_tree_name> <file1> [file2] .. [fileN]" << std::endl;

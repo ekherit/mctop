@@ -59,7 +59,7 @@ std::map<mctop_t,Long64_t> McTop::Count()
 }
 
 
-std::map<decay_topology_t, Long64_t> McTop::Count2(void)
+std::map<decay_topology_t, Long64_t> McTop::Count2(Option opt)
 {
   if (fChain == 0) throw std::runtime_error("No chain");
 
