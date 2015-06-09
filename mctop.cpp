@@ -1,13 +1,20 @@
 #include "McTop.h"
 #include <iostream>
+#include <sstream>
 #include <map>
 #include <vector>
 #include <stdexcept>
 #include <iomanip>
 
 
+#include "pdg_table.h"
+
+
+#include <boost/format.hpp>
+
 int main(int argc, char ** argv)
 {
+  std::cout << PdgTable[-22] << std::endl;
   if(argc<3) 
   {
     std::cout << "Usage: mctop <mctopo_tree_name> <file1> [file2] .. [fileN]" << std::endl;
@@ -20,75 +27,58 @@ int main(int argc, char ** argv)
     std::cout << "Adding file: " << argv[i] << std::endl;
     mctop.AddFile(argv[i]);
   }
-  std::map<mctop_t,Long64_t> mapTop = mctop.Count();
-  //resort the map
-  std::multimap<Long64_t, mctop_t> Tops;
-  std::map<int,std::string> PdgTable;
-  PdgTable[-22]="gamma";
-  PdgTable[22]="gamma";
-  PdgTable[100443]="psi(2S)";
-  PdgTable[443]="J/psi";
-  PdgTable[13]="mu+";
-  PdgTable[-13]="mu-";
-  PdgTable[-11]="e-";
-  PdgTable[+11]="e+";
-  PdgTable[-321]="K-";
-  PdgTable[+321]="K+";
-  PdgTable[+211]="pi+";
-  PdgTable[-211]="pi-";
-  PdgTable[10323]="K1(1270)+";
-  PdgTable[-10323]="K1(1270)-";
-  PdgTable[-313]="-K*(892)0";
-  PdgTable[313]="K*(892)0";
-  PdgTable[10311]="K0*(1430)0";
-  PdgTable[-10311]="-K0*(1430)0";
-  PdgTable[113]="rho(770)0";
-  PdgTable[-113]="-rho(770)0";
-  PdgTable[213]="rho(770)+";
-  PdgTable[-213]="rho(770)-";
-  PdgTable[9050225]="f2(2150)";
-  PdgTable[225]="f2(1270)";
-  PdgTable[221]="eta";
-  PdgTable[229]="f4(2050)";
-  PdgTable[315]="K2*(1430)0";
-  for(std::map<mctop_t,Long64_t>::iterator it=mapTop.begin(); it!=mapTop.end(); it++)
+  auto TopoMap = mctop.Count2();
+  std::multimap<Long64_t, decay_topology_t> CountMap;
+  for(auto & it : TopoMap)
   {
-    Tops.insert(std::pair<Long64_t, mctop_t>(it->second,it->first));
+    CountMap.insert({it.second,it.first});
   }
-  int ntop = 0;
-  //for(std::map<mctop_t,Long64_t>::iterator it=mapTop.begin(); it!=mapTop.end(); it++)
-  Long64_t event_counter=0;
-  for(std::map<Long64_t,mctop_t>::reverse_iterator it=Tops.rbegin(); it!=Tops.rend(); it++)
+  boost::format fmt_head("%5s %10s %15s %10s %-60s");
+  boost::format      fmt("%5d %10d %15d %10d %-60s");
+  std::cout << fmt_head % "#" % "count" % "hash" % "num part" % "topology"<< std::endl;
+  Long64_t event_counter =0;
+  Long64_t topology_counter=0;
+  for(auto & it : CountMap)
   {
-    mctop_t top = it->second;
-    std::cout << "Topology " << ntop << " count " << it->first << " times,  mcidx = " << top.pdgid.size() << ":" << std::endl;
-    event_counter+=it->first;
-    for(int i=0;i<top.pdgid.size();i++)
-    {
-      std::map<int,std::string>::iterator it = PdgTable.find(top.pdgid[i]);
-      if(it!=PdgTable.end()) std::cout << std::setw(13) << PdgTable[top.pdgid[i]];
-      else std::cout << std::setw(13) << top.pdgid[i];
-    }
-    std::cout << std::endl;
-    for(int i=0;i<top.pdgid.size();i++)
-    {
-      std::cout << std::setw(13) << top.pdgid[i];
-    }
-    std::cout << std::endl;
-    for(int i=0;i<top.mother.size();i++)
-    {
-      std::cout << std::setw(13) << top.mother[i];
-    }
-    std::cout << std::endl;
-    for(int i=0;i<80;i++) std::cout << "=";
-    std::cout << std::endl;
-    ntop++;
+    auto & top = it.second;
+    //std::list<int> root_list;
+    //find_root(top,root_list,0);
+    //std::function<void(int)> print_topo;
+    //std::ostringstream os;
+    //print_topo = [&](int idx)
+    //{
+    //  decay_topology_t::adjacency_iterator begin, end;
+    //  tie(begin, end) = adjacent_vertices(idx, top);
+    //  std::string name = top[idx].name;
+    //  if(name == "") name = "["+std::to_string(top[idx].pdgid)+"]";
+    //  if(begin != end)
+    //  {
+    //    os << "(" << name << " -> ";
+    //    for (; begin != end; ++begin)
+    //    {   
+    //      print_topo(*begin);
+    //    }
+    //    os << ")";
+    //  }
+    //  else 
+    //  {
+    //    os << name;
+    //  }
+    //};
+    //for(auto root : root_list)
+    //{
+    //  print_topo(root);
+    //  os << ",";
+    //}
+    std::cout << fmt % topology_counter % it.first % top[boost::graph_bundle].hash % num_vertices(top) % to_string(top) << std::endl;
+    topology_counter++;
+    event_counter+=it.first;
   }
   std::cout << "Total number of events: " << event_counter << std::endl;
-  if(!Tops.empty())
+  if(!CountMap.empty())
   {
-    std::cout << "Found " << Tops.size() << " different topologies" << std::endl;
-    std::cout << "Most probable topology: " << Tops.rbegin()->first << std::endl;
-    std::cout << "Other topologies: " << event_counter - Tops.rbegin()->first << std::endl;
+    std::cout << "Found " << CountMap.size() << " different topologies" << std::endl;
+    std::cout << "Most probable topology: " << CountMap.rbegin()->first << std::endl;
+    std::cout << "Other topologies: " << event_counter - CountMap.rbegin()->first << std::endl;
   }
 };

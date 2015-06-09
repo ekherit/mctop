@@ -17,11 +17,118 @@
 #include <algorithm>
 
 #include <boost/crc.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/breadth_first_search.hpp>
+
+struct particle_t
+{
+  int pdgid;
+  std::string name;
+};
+
+struct topology_property_t
+{
+  Long64_t hash;
+};
+
+typedef boost::adjacency_list <boost::vecS,boost::vecS,boost::bidirectionalS,particle_t, boost::no_property, topology_property_t > decay_topology_t;
+
+inline bool operator<(const decay_topology_t & top1, const decay_topology_t & top2)
+{
+  return top1[boost::graph_bundle].hash < top2[boost::graph_bundle].hash;
+};
+
+//find the root of the graph
+inline void find_root(const  decay_topology_t &  top, std::list<int> & root_list,  int idx)
+{
+  decay_topology_t::in_edge_iterator in_begin, in_end;
+  boost::tie(in_begin, in_end) = in_edges(idx,top);
+  if(in_begin == in_end) //если нет родителей, тогда заполним массив
+  {
+    root_list.push_back(idx);
+    return;
+  }
+  else//а если есть, то поёдем по родителям
+  {
+    for (; in_begin != in_end; ++in_begin)
+    {   
+      find_root(top,root_list, source(*in_begin,top));
+    }
+  }
+}
+
+inline std::string to_string(const  decay_topology_t & top)
+{
+    std::list<int> root_list;
+    find_root(top,root_list,0);
+    std::function<void(int)> loop;
+    std::string s;
+    loop = [&](int idx)
+    {
+      decay_topology_t::adjacency_iterator begin, end;
+      tie(begin, end) = adjacent_vertices(idx, top);
+      std::string name = top[idx].name;
+      if(name == "") name = "["+std::to_string(top[idx].pdgid)+"]";
+      if(begin != end)
+      {
+        s+="(" + name + " -> ";
+        for (; begin != end; ++begin)
+        {   
+          loop(*begin);
+        }
+        s+=")";
+      }
+      else 
+      {
+        s+=name;
+      }
+    };
+    for(auto root : root_list)
+    {
+      loop(root);
+      s+= ",";
+    }
+    return s;
+}
+
+
+
+
+inline Long64_t hash(const decay_topology_t & top) 
+{
+  boost::crc_32_type crc;
+  //1. Find list of roots (vertices which has no parrents)
+  std::list<int> roots;
+  find_root(top,roots,2);
+  std::function<void(int)> loop;
+  loop = [&](int idx)
+  {
+    crc(top[idx].pdgid);
+    decay_topology_t::adjacency_iterator begin, end;
+    tie(begin, end) = adjacent_vertices(idx, top);
+    if(begin == end) return; //the end of this branch
+    else
+    {
+      for (; begin != end; ++begin)
+      {   
+        loop(*begin);
+        //std::cout << source(*in_begin,top) << std::endl;
+      }
+    }
+  };
+  for(int root: roots)
+  {
+    loop(root);
+  }
+  return crc.checksum();
+};
+
 
 struct mctop_t
 {
   std::vector<int> pdgid;
   std::vector<int> mother;
+  std::vector<int> idx;
   size_t size(void) const
   {
     if(pdgid.size()!=mother.size())
@@ -31,10 +138,18 @@ struct mctop_t
     return pdgid.size();
   }
 
+  void resize(size_t N)
+  {
+    pdgid.resize(N);
+    mother.resize(N);
+    idx.resize(N);
+  }
+
   Long64_t hash(void) const
   {
     boost::crc_32_type crc;
     crc = std::for_each(pdgid.begin(),pdgid.end(),crc);
+    crc = std::for_each(idx.begin(),idx.end(),crc);
     crc = std::for_each(mother.begin(),mother.end(),crc);
     return crc.checksum();
   };
@@ -70,11 +185,13 @@ public :
    Int_t           indexmc;
    Int_t           pdgid[100];   //[indexmc]
    Int_t           motheridx[100];   //[indexmc]
+   Int_t           idx[100];   //[indexmc]
 
    // List of branches
    TBranch        *b_indexmc;   //!
    TBranch        *b_pdgid;   //!
    TBranch        *b_motheridx;   //!
+   TBranch        *b_idx;   //!
 
    McTop(const char * tree_name);
    virtual ~McTop();
@@ -86,6 +203,7 @@ public :
    virtual void     Show(Long64_t entry = -1);
    void AddFile(const char * file_name);
    virtual std::map<mctop_t,Long64_t> Count();
+   virtual std::map<decay_topology_t, Long64_t> Count2(void);
 };
 
 #endif
@@ -151,6 +269,7 @@ void McTop::Init(TChain *tree)
    fChain->SetBranchAddress("indexmc", &indexmc, &b_indexmc);
    fChain->SetBranchAddress("pdgid", pdgid, &b_pdgid);
    fChain->SetBranchAddress("motheridx", motheridx, &b_motheridx);
+   fChain->SetBranchAddress("idx", idx, &b_idx);
    Notify();
 }
 
