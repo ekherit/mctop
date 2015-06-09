@@ -82,6 +82,7 @@ std::map<decay_topology_t, Long64_t> McTop::Count2(Option opt)
       {
         if(idx[i] == motheridx[j])
         {
+          if(opt==REDUCE_PHOTON && pdgid[j] == -22) continue;
           boost::add_edge(i,j,top);
           top[i].pdgid = pdgid[i];
           top[j].pdgid = pdgid[j];

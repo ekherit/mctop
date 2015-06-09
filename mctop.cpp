@@ -11,29 +11,57 @@
 
 
 #include <boost/format.hpp>
+#include <boost/program_options.hpp>
 
 int main(int argc, char ** argv)
 {
-  if(argc<3) 
+  namespace po=boost::program_options;
+  po::options_description opt_desc("Allowed options");
+  std::string tree_name;
+  std::vector<std::string> tree_files;
+  opt_desc.add_options()
+    ("help,h","Print this help")
+    ("nogamma", "Reduce gamma")
+    //("tree_name",  po::value<std::string>(&tree_name), "Tree name")
+    ("tree_files", po::value<std::vector<std::string>>(&tree_files), "List of files")
+    ;
+  po::positional_options_description pos;
+  //pos.add("tree_name",-1);
+  pos.add("tree_files",-1);
+  po::variables_map opt; //options container
+  try
+  {
+    po::store(po::command_line_parser(argc, argv).options(opt_desc).positional(pos).run(), opt);
+    po::notify(opt);
+  } 
+  catch (boost::program_options::error & po_error)
+  {
+    std::cerr << "WARGNING: configuration: "<< po_error.what() << std::endl;
+  }
+
+  if(opt.count("help") || tree_files.size()<2)
   {
     std::cout << "Usage: mctop <mctopo_tree_name> <file1> [file2] .. [fileN]" << std::endl;
-    exit(1);
+    std::clog << opt_desc;
+    return 0;
   }
-  McTop mctop(argv[1]);
+  McTop mctop(tree_files[0].c_str());
   std::cout << "Loading files:"<< std::endl;
-  for(int i=2;i<argc; i++)
+  for(int i=1;i<tree_files.size(); i++)
   {
-    std::cout << "Adding file: " << argv[i] << std::endl;
-    mctop.AddFile(argv[i]);
+    std::cout << "Adding file: " << tree_files[i] << std::endl;
+    mctop.AddFile(tree_files[i].c_str());
   }
-  auto TopoMap = mctop.Count2();
+  Option count_option=NONE;
+  if(opt.count("nogamma")) count_option=REDUCE_PHOTON;
+  auto TopoMap = mctop.Count2(count_option);
   std::multimap<Long64_t, decay_topology_t> CountMap;
   for(auto & it : TopoMap)
   {
     CountMap.insert({it.second,it.first});
   }
-  boost::format fmt_head("%5s %10s %15s %10s %-60s");
-  boost::format      fmt("%5d %10d %15d %10d %-60s");
+  boost::format fmt_head("%5s %10s %15s %5s    %-60s");
+  boost::format      fmt("%5d %10d %15d %5d    %-60s");
   std::cout << fmt_head % "#" % "count" % "hash" % "num part" % "topology"<< std::endl;
   Long64_t event_counter =0;
   Long64_t topology_counter=0;

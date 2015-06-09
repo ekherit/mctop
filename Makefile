@@ -1,6 +1,6 @@
 all : mctop
 
-LIBS = `root-config --libs` -lMinuit 
+LIBS = `root-config --libs` -lMinuit  -lboost_program_options
 CXXFLAGS = `root-config --cflags` 
 
 BINDIR=$(HOME)/work/bin

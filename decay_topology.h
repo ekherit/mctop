@@ -52,30 +52,35 @@ inline std::string to_string(const  decay_topology_t & top)
     find_root(top,root_list,0);
     std::function<void(int)> loop;
     std::string s;
+    bool first_entry=true;
     loop = [&](int idx)
     {
       decay_topology_t::adjacency_iterator begin, end;
       tie(begin, end) = adjacent_vertices(idx, top);
       std::string name = top[idx].name;
       if(name == "") name = "["+std::to_string(top[idx].pdgid)+"]";
+      bool isroot = first_entry;
+      if(first_entry) first_entry=false;
       if(begin != end)
       {
-        s+="(" + name + " -> ";
+        if(!isroot) s+="(";
+        s+= name + " → ";
         for (; begin != end; ++begin)
         {   
           loop(*begin);
         }
-        s+=")";
+        if(!isroot) s+=")";
       }
       else 
       {
         s+=name;
       }
     };
-    for(auto root : root_list)
+    for(auto  it = begin(root_list); it!=end(root_list); it++)
     {
-      loop(root);
-      s+= ",";
+      loop(*it);
+      //if(it != rbegin(root_list)) 
+      if(next(it)!=end(root_list)) s+=",";
     }
     return s;
 }
