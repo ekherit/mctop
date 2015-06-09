@@ -3,8 +3,9 @@
 
 enum Option
 {
-  NONE,
-  REDUCE_PHOTON
+  NONE=0,
+  REDUCE = 1,
+  REDUCE_PHOTON =2
 };
 
 #endif

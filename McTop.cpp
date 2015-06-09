@@ -59,7 +59,7 @@ std::map<mctop_t,Long64_t> McTop::Count()
 }
 
 
-std::map<decay_topology_t, Long64_t> McTop::Count2(Option opt)
+std::map<decay_topology_t, Long64_t> McTop::Count2(int opt)
 {
   if (fChain == 0) throw std::runtime_error("No chain");
 
@@ -82,7 +82,7 @@ std::map<decay_topology_t, Long64_t> McTop::Count2(Option opt)
       {
         if(idx[i] == motheridx[j])
         {
-          if(opt==REDUCE_PHOTON && pdgid[j] == -22) continue;
+          if(opt&REDUCE_PHOTON && pdgid[j] == -22) continue;
           boost::add_edge(i,j,top);
           top[i].pdgid = pdgid[i];
           top[j].pdgid = pdgid[j];
@@ -92,6 +92,15 @@ std::map<decay_topology_t, Long64_t> McTop::Count2(Option opt)
       }
     }
     top[boost::graph_bundle].hash = hash(top);
+    auto  it = TopoMap.find(top);
+    if(opt & REDUCE && it == end(TopoMap)) //if unable to find topology the conjucate it
+    {
+      //if(top[boost::graph_bundle].hash != 3002870862L) 
+      //  std::cout << to_string(top) <<  " " << hash(top) << std::endl;
+      top = conj(top);
+      //if(top[boost::graph_bundle].hash != 3002870862L)
+      //  std::cout << to_string(top) << " " << hash(top)  << std::endl;
+    }
     TopoMap[top]++;
     //std::cout << "hash = " << hash(top) << std::endl;
     //std::list<int> root_list;

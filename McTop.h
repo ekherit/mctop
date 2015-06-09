@@ -49,7 +49,7 @@ class McTop
   virtual void     Show(Long64_t entry = -1);
   void AddFile(const char * file_name);
   virtual std::map<mctop_t,Long64_t> Count();
-  virtual std::map<decay_topology_t, Long64_t> Count2(Option opt=Option::NONE);
+  virtual std::map<decay_topology_t, Long64_t> Count2(int opt = Option::NONE);
 };
 
 #endif

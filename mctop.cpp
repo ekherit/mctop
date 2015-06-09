@@ -21,7 +21,8 @@ int main(int argc, char ** argv)
   std::vector<std::string> tree_files;
   opt_desc.add_options()
     ("help,h","Print this help")
-    ("nogamma", "Reduce gamma")
+    ("nogamma", "Reduce radiative gamma")
+    ("reduce", "Merge topology and antitopology")
     //("tree_name",  po::value<std::string>(&tree_name), "Tree name")
     ("tree_files", po::value<std::vector<std::string>>(&tree_files), "List of files")
     ;
@@ -52,8 +53,9 @@ int main(int argc, char ** argv)
     std::cout << "Adding file: " << tree_files[i] << std::endl;
     mctop.AddFile(tree_files[i].c_str());
   }
-  Option count_option=NONE;
-  if(opt.count("nogamma")) count_option=REDUCE_PHOTON;
+  int count_option=NONE;
+  if(opt.count("nogamma")) count_option |=  REDUCE_PHOTON;
+  if(opt.count("reduce"))  count_option |=  REDUCE;
   auto TopoMap = mctop.Count2(count_option);
   std::multimap<Long64_t, decay_topology_t> CountMap;
   for(auto & it : TopoMap)

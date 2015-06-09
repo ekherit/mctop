@@ -9,6 +9,8 @@
 #include <boost/graph/breadth_first_search.hpp>
 
 
+#include "pdg_table.h"
+
 struct particle_t
 {
   int pdgid;
@@ -98,16 +100,26 @@ inline Long64_t hash(const decay_topology_t & top)
   loop = [&](int idx)
   {
     crc(top[idx].pdgid);
-    decay_topology_t::adjacency_iterator begin, end;
+    decay_topology_t::adjacency_iterator i,begin, end;
     tie(begin, end) = adjacent_vertices(idx, top);
     if(begin == end) return; //the end of this branch
     else
     {
-      for (; begin != end; ++begin)
+      //create map with vertex sorted by pdgid
+      std::map<int,decay_topology_t::adjacency_iterator> m;
+      for (auto i=begin; i != end; ++i) 
       {   
-        loop(*begin);
-        //std::cout << source(*in_begin,top) << std::endl;
+        m[top[*i].pdgid]=i;
       }
+      for(auto & b : m)
+      {
+        loop(*(b.second));
+      }
+      //for (; begin != end; ++begin)
+      //{   
+      //  loop(*begin);
+      //  //std::cout << source(*in_begin,top) << std::endl;
+      //}
     }
   };
   for(int root: roots)
@@ -116,6 +128,24 @@ inline Long64_t hash(const decay_topology_t & top)
   }
   return crc.checksum();
 };
+
+inline decay_topology_t conj(const decay_topology_t  & top)
+{
+  auto atop = top; //antiparticle topology
+  boost::graph_traits <decay_topology_t>::vertex_iterator it, end;
+  for(tie(it, end) = boost::vertices(atop); it!=end; ++it)
+  {
+    int & pdgid = atop[*it].pdgid;
+    auto & name = atop[*it].name;
+    //check neutral 
+    auto aname = PdgTable[-pdgid];
+    if( aname == name) continue; 
+    pdgid = - pdgid;
+    name = aname;
+  }
+  atop[boost::graph_bundle].hash = hash(atop); //recalculate hash
+  return atop;
+}
 
 
 #endif
