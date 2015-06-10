@@ -26,7 +26,7 @@ struct topology_property_t
 {
   //std::list<Long64_t> hash_list;
   //Long64_t hash(void) { return hash_list.front(); };
-  Long64_t hash;
+  long hash;
 };
 
 typedef boost::adjacency_list <boost::vecS,boost::vecS,boost::bidirectionalS,particle_t, boost::no_property, topology_property_t > decay_topology_t;
@@ -175,7 +175,7 @@ inline std::string final_state(const  decay_topology_t & top)
 
 
 
-inline Long64_t hash(const decay_topology_t & top) 
+inline long hash(const decay_topology_t & top) 
 {
   boost::crc_32_type crc;
   auto roots = find_root(top);

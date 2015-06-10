@@ -1,4 +1,3 @@
-#include "McTop.h"
 #include <iostream>
 #include <sstream>
 #include <map>
@@ -9,6 +8,7 @@
 
 #include "pdg_table.h"
 
+#include "McTopoAdaptor.h"
 
 #include <boost/format.hpp>
 #include <boost/program_options.hpp>
@@ -46,7 +46,7 @@ int main(int argc, char ** argv)
     std::clog << opt_desc;
     return 0;
   }
-  McTop mctop(tree_files[0].c_str());
+  McTopoAdaptor mctop(tree_files[0]);
   std::cout << "Loading files:"<< std::endl;
   for(int i=1;i<tree_files.size(); i++)
   {
@@ -56,7 +56,7 @@ int main(int argc, char ** argv)
   int count_option=NONE;
   if(opt.count("nogamma")) count_option |=  REDUCE_PHOTON;
   if(opt.count("reduce"))  count_option |=  REDUCE;
-  auto TopoMap = mctop.Count2(count_option);
+  auto TopoMap = mctop.Count(count_option);
   std::multimap<Long64_t, decay_topology_t> CountMap;
   for(auto & it : TopoMap)
   {

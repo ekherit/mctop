@@ -5,11 +5,14 @@ CXXFLAGS = `root-config --cflags`  -std=c++1y
 
 BINDIR=$(HOME)/work/bin
 
-mctop : McTop.o  mctop.cpp pdg_table.h decay_topology.h mctop.h
-		g++ -o $(BINDIR)/mctop $(CXXFLAGS)  mctop.cpp $(LIBS) McTop.o
+mctop : McTopoAdaptor.o  McTopo.o mctop.cpp pdg_table.h decay_topology.h mctop.h
+		g++ -o $(BINDIR)/mctop $(CXXFLAGS)  mctop.cpp $(LIBS) McTopoAdaptor.o McTopo.o
 
-McTop.o : McTop.cpp McTop.h pdg_table.h decay_topology.h mctop.h
-		g++ -o McTop.o $(CXXFLAGS) -c McTop.cpp 
+McTopo.o : McTopo.cpp
+		g++ -o McTopo.o $(CXXFLAGS) -c McTopo.cpp 
+
+McTopoAdaptor.o : McTopoAdaptor.cpp McTopoAdaptor.h pdg_table.h decay_topology.h 
+		g++ -o McTopoAdaptor.o $(CXXFLAGS) -c McTopoAdaptor.cpp 
 	
 clean :
 		rm $(BINDIR)/mctop *.o

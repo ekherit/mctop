@@ -1,89 +1,82 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Thu Nov 27 17:58:23 2014 by ROOT version 5.34/05
-// from TTree mctopo/Monte Carlo truth information topology
-// found on file: MCJPKK-0009023.root
+// Wed Jun 10 18:45:50 2015 by ROOT version 5.34/05
+// from TTree mctopoKK/mcTopo KK events
+// found on file: ../JpsiKK/analysis/mckkuu09-1.root
 //////////////////////////////////////////////////////////
 
-#ifndef McTop_h
-#define McTop_h
+#ifndef McTopo_h
+#define McTopo_h
 
-//#include <TROOT.h>
+#include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
-#include <stdexcept>
-#include <cmath>
-#include <iostream>
-#include <algorithm>
 
-#include "Options.h"
-#include "decay_topology.h"
-#include "mctop.h"
+// Header file for the classes stored in the TTree if any.
 
-class McTop
-{
-  std::string     fName; //tree name
-  public :
-  TChain          *fChain;   //!pointer to the analyzed TTree or TChain
-  Int_t           fCurrent; //!current Tree number in a TChain
+// Fixed size dimensions of array or collections stored in the TTree if any.
 
-  // Declaration of leaf types
-  Int_t           indexmc;
-  Int_t           pdgid[100];   //[indexmc]
-  Int_t           motheridx[100];   //[indexmc]
-  Int_t           idx[100];   //[indexmc]
 
-  // List of branches
-  TBranch        *b_indexmc;   //!
-  TBranch        *b_pdgid;   //!
-  TBranch        *b_motheridx;   //!
-  TBranch        *b_idx;   //!
+class McTopo {
+public :
+   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+   Int_t           fCurrent; //!current Tree number in a TChain
 
-  McTop(const char * tree_name);
-  virtual ~McTop();
-  virtual Int_t    Cut(Long64_t entry);
-  virtual Int_t    GetEntry(Long64_t entry);
-  virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TChain *tree);
-  virtual Bool_t   Notify();
-  virtual void     Show(Long64_t entry = -1);
-  void AddFile(const char * file_name);
-  virtual std::map<mctop_t,Long64_t> Count();
-  virtual std::map<decay_topology_t, Long64_t> Count2(int opt = Option::NONE);
+   // Declaration of leaf types
+   Int_t           indexmc;
+   Int_t           pdgid[100];   //[indexmc]
+   Int_t           motheridx[100];   //[indexmc]
+   Int_t           idx[100];   //[indexmc]
+
+   // List of branches
+   TBranch        *b_indexmc;   //!
+   TBranch        *b_pdgid;   //!
+   TBranch        *b_motheridx;   //!
+   TBranch        *b_idx;   //!
+
+   McTopo(TTree *tree=0);
+
+   virtual ~McTopo();
+   virtual Int_t    Cut(Long64_t entry);
+   virtual Int_t    GetEntry(Long64_t entry);
+   virtual Long64_t LoadTree(Long64_t entry);
+   virtual void     Init(TTree *tree);
+   virtual void     Loop();
+   virtual Bool_t   Notify();
+   virtual void     Show(Long64_t entry = -1);
 };
 
 #endif
 
-#ifdef McTop_cxx
-
-McTop::McTop(const char * tree_name) : fChain(0) 
+#ifdef McTopo_cxx
+McTopo::McTopo(TTree *tree) : fChain(0) 
 {
-  fName = tree_name;
-  fChain= new TChain(tree_name, tree_name);
-  Init(fChain);
+// if parameter tree is not specified (or zero), connect the file
+// used to generate this class and read the Tree.
+   if (tree == 0) {
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("../JpsiKK/analysis/mckkuu09-1.root");
+      if (!f || !f->IsOpen()) {
+         f = new TFile("../JpsiKK/analysis/mckkuu09-1.root");
+      }
+      f->GetObject("mctopoKK",tree);
+
+   }
+   Init(tree);
 }
 
-void McTop::AddFile(const char * file_name)
-{
-  if(fChain)
-  {
-    fChain->AddFile(file_name);
-  }
-}
-
-McTop::~McTop()
+McTopo::~McTopo()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 }
 
-Int_t McTop::GetEntry(Long64_t entry)
+Int_t McTopo::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
    if (!fChain) return 0;
    return fChain->GetEntry(entry);
 }
-Long64_t McTop::LoadTree(Long64_t entry)
+Long64_t McTopo::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
    if (!fChain) return -5;
@@ -96,7 +89,7 @@ Long64_t McTop::LoadTree(Long64_t entry)
    return centry;
 }
 
-void McTop::Init(TChain *tree)
+void McTopo::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -119,7 +112,7 @@ void McTop::Init(TChain *tree)
    Notify();
 }
 
-Bool_t McTop::Notify()
+Bool_t McTopo::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -130,18 +123,18 @@ Bool_t McTop::Notify()
    return kTRUE;
 }
 
-void McTop::Show(Long64_t entry)
+void McTopo::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t McTop::Cut(Long64_t entry)
+Int_t McTopo::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
    return 1;
 }
-#endif // #ifdef McTop_cxx
+#endif // #ifdef McTopo_cxx
