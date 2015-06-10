@@ -2,12 +2,13 @@
 
 McTopoAdaptor::McTopoAdaptor(McTopo & mctopo)
 {
-  fChain = mctopo.fChain;
-  chain = (TChain*) fChain;
+  //fChain = mctopo.fChain;
+  //chain = (TChain*) fChain;
+  //Init(fChain);
+  chain =0;
+  fChain = 0;
   indexmc = mctopo.indexmc;
-
-  Init(fChain);
-  for(int i =0;i<sizeof(mctopo.pdgid)/sizeof(Int_t);i++)
+  for(int i =0;i<indexmc;i++)
   {
     pdgid[i] = mctopo.pdgid[i];
     motheridx[i] = mctopo.motheridx[i];

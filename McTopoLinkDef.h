@@ -1,8 +1,8 @@
-//#include "McTopo.h"
+//#include "libMcTopo.h"
 #ifdef __CINT__
-//#pragma link off all globals;
-//#pragma link off all classes;
-//#pragma link off all functions;
+#pragma link off all globals;
+#pragma link off all classes;
+#pragma link off all functions;
 //
 //#pragma link C++ class TAxis;
 //#pragma link C++ class TAttAxis-;
@@ -17,9 +17,9 @@
 //#pragma link C++ enum EMessageTypes;
 //
 #pragma link C++ class McTopo;
-#pragma link C++ class TChain;
-
-#pragma link C++ function unsigned long hash(McTopo *);
+#pragma link C++ class Hash;
+//#pragma link C++ function hash(McTopo *);
+#pragma link C++ function hash(McTopo &);
 
 #endif
 
