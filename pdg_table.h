@@ -7,7 +7,7 @@
 
 #include <map>
 #include <string>
-static std::map<int,std::string> PdgTable =
+static  std::map<int,std::string> PdgTable =
 { 
   {-22,"ɣ"},
   { 22,"ɣ"},
@@ -44,9 +44,13 @@ static std::map<int,std::string> PdgTable =
   {+213,"ρ(770)+"},
   {-213,"ρ(770)-"},
   {9050225,"f2(2150)"},
+  {-9050225,"f2(2150)"},
   {225,"f2(1270)"},
+  {-225,"f2(1270)"},
   {221,"η"},
+  {-221,"η"},
   {229,"f4(2050)"},
+  {-229,"f4(2050)"},
   {315,"K2*(1430)0"},
   {-315,"-K2*(1430)0"},
   {311,"K0"},

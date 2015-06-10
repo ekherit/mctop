@@ -5,6 +5,7 @@
 #include <TCanvas.h>
 #include <stdexcept>
 #include <iostream>
+#include <iomanip>
 
 #include "pdg_table.h"
 
@@ -74,47 +75,35 @@ std::map<decay_topology_t, Long64_t> McTop::Count2(int opt)
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     //create topology with indexmc vertex
-    decay_topology_t top(indexmc);;
+    //decay_topology_t top(indexmc);
+    decay_topology_t top;
     //fill the topology
     for(int i=0;i<indexmc; i++)
     {
-      for(int j=i+1;j<indexmc;j++)
+      for(int j=0;j<indexmc;j++)
       {
         if(idx[i] == motheridx[j])
         {
-          if(opt&REDUCE_PHOTON && pdgid[j] == -22) continue;
-          boost::add_edge(i,j,top);
-          top[i].pdgid = pdgid[i];
-          top[j].pdgid = pdgid[j];
-          top[i].name = PdgTable[top[i].pdgid];
-          top[j].name = PdgTable[top[j].pdgid];
+          //vertex_t  parent(  add_vertex(particle_t(pdgid[i]),top));
+          //vertex_t   child(add_vertex(particle_t(pdgid[j]),top));
+          vertex_t parent(i);
+          vertex_t child(j);
+          boost::add_edge(parent,child,top);
+          top[parent].name = PdgTable[top[parent].pdgid];
+          top[parent].pdgid = pdgid[parent];
+          top[child].pdgid = pdgid[child];
+          top[child].name = PdgTable[top[child].pdgid];
         }
       }
     }
+    if(opt & REDUCE_PHOTON) remove_particle(-22,top);
     top[boost::graph_bundle].hash = hash(top);
     auto  it = TopoMap.find(top);
     if(opt & REDUCE && it == end(TopoMap)) //if unable to find topology the conjucate it
     {
-      //if(top[boost::graph_bundle].hash != 3002870862L) 
-      //  std::cout << to_string(top) <<  " " << hash(top) << std::endl;
       top = conj(top);
-      //if(top[boost::graph_bundle].hash != 3002870862L)
-      //  std::cout << to_string(top) << " " << hash(top)  << std::endl;
     }
     TopoMap[top]++;
-    //std::cout << "hash = " << hash(top) << std::endl;
-    //std::list<int> root_list;
-    //find_root(top,root_list,indexmc-1);
-    //if(root_list.empty())
-    //{
-    //  std::cerr << "WARNING: Unable to find root of the decay graph for entry " << jentry << std::endl;
-    //}
-    //if(root_list.size()>1)
-    //{
-    //  std::cerr << "WARNING: To much root vertex: " << root_list.size() << std::endl;
-    //}
-
-    //std::cout << "The root of the decay tree is: " << root_list.front() << std::endl;
   }
   return TopoMap;
 }

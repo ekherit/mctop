@@ -1,7 +1,7 @@
 all : mctop
 
 LIBS = `root-config --libs` -lMinuit  -lboost_program_options
-CXXFLAGS = `root-config --cflags` 
+CXXFLAGS = `root-config --cflags`  -std=c++1y
 
 BINDIR=$(HOME)/work/bin
 
