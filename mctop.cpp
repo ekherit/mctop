@@ -63,7 +63,7 @@ int main(int argc, char ** argv)
     CountMap.insert({it.second,it.first});
   }
   boost::format fmt_head("%5s %10s %15s  %-20s  %-70s ");
-  boost::format      fmt("%5d %10d %15d  %-20s  %-70s ");
+  boost::format      fmt("%5d %10d %15x  %-20s  %-70s ");
   std::cout << fmt_head % "#" % "count" % "hash" % "final state" % "topology" << std::endl;
   Long64_t event_counter =0;
   Long64_t topology_counter=0;
