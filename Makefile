@@ -14,17 +14,16 @@ McTopo.o : McTopo.cpp
 McTopoAdaptor.o : McTopoAdaptor.cpp McTopoAdaptor.h pdg_table.h decay_topology.h 
 		g++ -o McTopoAdaptor.o $(CXXFLAGS) -c McTopoAdaptor.cpp 
 
-libmctopo.o : libmctopo.h McTopoAdaptor.h pdg_table.h decay_topology.h 
-		g++ -o libmctopo.o $(CXXFLAGS) -c libmctopo.cpp 
+
+libMcTopoDict.cxx :
+		rootcint -f libMcTopoDict.cxx -c libMcTopo.h McTopoLinkDef.h
+		
+libMcTopoDict.o . :  libMcTopoDict.cxx
+		g++ -o libMcTopoDict.o $(CXXFLAGS) -c libMcTopoDict.cxx
 
 
-libmctopo.so: $(LIBFILE)  $(DICTOBJ)
-	$(CMDPREFIX)g++ -shared -o $(ROOTLIB) $(DICTOBJ)  $(LIBFILE) -lpq -lcrypt
-
-
-#генерация словарика
-$(DICTCXX): $(DICTCLASS).h $(DICTCLASS)LinkDef.h
-	$(CMDPREFIX)rootcint -f $(DICTCXX) -c $(DICTCLASS).h $(DICTCLASS)LinkDef.h
+libMcTopo.so: McTopoAdaptor.o  McTopo.o libMcTopoDict.o
+		g++ -shared -o libMcTopo.so  McTopoAdaptor.o  McTopo.o libMcTopoDict.o
 
 	
 clean :

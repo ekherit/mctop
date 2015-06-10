@@ -2,3 +2,6 @@
 mctop
 *.*.sw*
 *~
+libMcTopoDict.cxx
+libMcTopoDict.h
+*.so

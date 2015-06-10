@@ -15,7 +15,10 @@
 //#pragma link C++ global gEnv;
 //
 //#pragma link C++ enum EMessageTypes;
+//
 #pragma link C++ class McTopo;
+#pragma link C++ class TChain;
+
 #pragma link C++ function unsigned long hash(McTopo *);
 
 #endif
