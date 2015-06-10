@@ -175,7 +175,7 @@ inline std::string final_state(const  decay_topology_t & top)
 
 
 
-inline long hash(const decay_topology_t & top) 
+inline unsigned long hash(const decay_topology_t & top) 
 {
   boost::crc_32_type crc;
   auto roots = find_root(top);
