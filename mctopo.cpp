@@ -59,6 +59,7 @@ std::string format(std::string s, int width=0)
   return s+std::string(n,' ');
 }
 
+
 int main(int argc, char ** argv)
 {
   namespace po=boost::program_options;
@@ -71,11 +72,9 @@ int main(int argc, char ** argv)
     ("nogamma,g", "Reduce radiative gamma")
     ("reduce,r", "Merge topology and antitopology")
     ("number,N",po::value<unsigned long long>(&N)->default_value(0),"Number of event to proceed")
-    //("tree_name",  po::value<std::string>(&tree_name), "Tree name")
     ("tree_files", po::value<std::vector<std::string>>(&tree_files), "List of files")
     ;
   po::positional_options_description pos;
-  //pos.add("tree_name",-1);
   pos.add("tree_files",-1);
   po::variables_map opt; //options container
   try
@@ -105,8 +104,8 @@ int main(int argc, char ** argv)
   if(opt.count("nogamma")) count_option |=  REDUCE_PHOTON;
   if(opt.count("reduce"))  count_option |=  REDUCE;
   auto TopoMap = mctop.Count(N,count_option);
-  size_t final_state_width=0;
-  size_t topology_info_width=0;
+  size_t final_state_width=9;
+  size_t topology_info_width=8;
   std::multimap<Long64_t, decay_topology_t> CountMap;
   for(auto & t : TopoMap)
   {
@@ -115,9 +114,10 @@ int main(int argc, char ** argv)
     final_state_width    = std::max(final_state_width,  utf_size(final_state(t.first)));
     topology_info_width  = std::max(topology_info_width,utf_size(to_string(t.first)));
   }
-  boost::format fmt_head("%3s%8s  %-s  %-"+ std::to_string(topology_info_width)+"s %-10s");
-  boost::format fmt_data("%3d%8d  %-s  %-s");
-  std::cout << fmt_head % "#" % "count"  % "fin st." % "topology" % "hash list" << std::endl;
+  std::string hstrfmt ="%="+std::to_string(final_state_width)+"s  %="+ std::to_string(topology_info_width)+"s %-10s";
+  boost::format fmt_head("%3s%8s "+ hstrfmt);
+  boost::format fmt_data("%3d%8d  %-s  %-s ");
+  std::cout << fmt_head % "#" % "count"  % "final st." % "topology" % "hash list" << std::endl;
   Long64_t event_counter =0;
   Long64_t topology_counter=0;
   for(auto & it : CountMap)
