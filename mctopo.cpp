@@ -52,6 +52,13 @@ std::string adjast_utf_string(std::string  s, int width=0)
   return s+std::string(width+count,' ');
 }
 
+std::string format(std::string s, int width=0)
+{
+  size_t us = utf_size(s);
+  size_t n = width > us ? width -us : 0;
+  return s+std::string(n,' ');
+}
+
 int main(int argc, char ** argv)
 {
   namespace po=boost::program_options;
@@ -104,24 +111,19 @@ int main(int argc, char ** argv)
   for(auto & t : TopoMap)
   {
     CountMap.insert(std::pair<Long64_t, decay_topology_t>(t.second,t.first));
-    auto & top = t.first;
   //calculate maximum width of the output
-    final_state_width    = std::max(final_state_width, final_state(top).size());
-    topology_info_width  = std::max(topology_info_width, to_string(top).size());
-    //create count map
+    final_state_width    = std::max(final_state_width,  utf_size(final_state(t.first)));
+    topology_info_width  = std::max(topology_info_width,utf_size(to_string(t.first)));
   }
-  std::string fs = "%-"+std::to_string(final_state_width)+"s %-"+std::to_string(topology_info_width)+"s";
-  std::string fh = "%3s%8s  "+fs + "%-10s";
-  std::string fd = "%3d%8d  "+fs;
-  boost::format fmt_head(fh);
-  boost::format      fmt(fd);
-  std::cout << fmt_head % "#" % "count"  % "final state" % "topology" % "hash list" << std::endl;
+  boost::format fmt_head("%3s%8s  %-s  %-"+ std::to_string(topology_info_width)+"s %-10s");
+  boost::format fmt_data("%3d%8d  %-s  %-s");
+  std::cout << fmt_head % "#" % "count"  % "fin st." % "topology" % "hash list" << std::endl;
   Long64_t event_counter =0;
   Long64_t topology_counter=0;
   for(auto & it : CountMap)
   {
     auto & top = it.second;
-    std::cout << fmt % topology_counter % it.first % adjast_utf_string(final_state(top),final_state_width) % adjast_utf_string(to_string(top),topology_info_width);
+    std::cout << fmt_data % topology_counter % it.first % format(final_state(top),final_state_width) % format(to_string(top),topology_info_width);
     std::cout << std::hex;
     for(auto hi = begin(top[boost::graph_bundle].hash_list); hi!=end(top[boost::graph_bundle].hash_list); hi++)
     {
