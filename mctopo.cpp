@@ -13,6 +13,26 @@
 #include <boost/format.hpp>
 #include <boost/program_options.hpp>
 
+
+void print_byte(ostream & os, unsigned char c)
+{
+  for(int b = 7;b>=0;b--) os << ((c >> b) & 0x1);
+}
+std::string adjast_utf_string(std::string  s, int width=0)
+{
+  int count=0;
+  for(size_t i=0;i<s.size();++i)
+  {
+    if( ((s[i] >> 6) & 0b11) == 0b10  ) 
+    {
+      count++;
+    }
+  }
+  width-=s.size();
+  if(width<0) width=0;
+  return s+std::string(width+count,' ');
+}
+
 int main(int argc, char ** argv)
 {
   namespace po=boost::program_options;
@@ -21,8 +41,8 @@ int main(int argc, char ** argv)
   std::vector<std::string> tree_files;
   opt_desc.add_options()
     ("help,h","Print this help")
-    ("nogamma", "Reduce radiative gamma")
-    ("reduce", "Merge topology and antitopology")
+    ("nogamma,g", "Reduce radiative gamma")
+    ("reduce,r", "Merge topology and antitopology")
     //("tree_name",  po::value<std::string>(&tree_name), "Tree name")
     ("tree_files", po::value<std::vector<std::string>>(&tree_files), "List of files")
     ;
@@ -62,15 +82,15 @@ int main(int argc, char ** argv)
   {
     CountMap.insert(std::pair<Long64_t, decay_topology_t>(it.second,it.first));
   }
-  boost::format fmt_head("%5s %10s %15s  %-20s  %-70s");
-  boost::format      fmt("%5d %10d %15x  %-20s  %-70s");
+  boost::format fmt_head("%5s %10s %15s  %-20s  %-60s");
+  boost::format      fmt("%5d %10d %15x  %-20s  %-60s");
   std::cout << fmt_head % "#" % "count" % "hash" % "final state" % "topology" << std::endl;
   Long64_t event_counter =0;
   Long64_t topology_counter=0;
   for(auto & it : CountMap)
   {
     auto & top = it.second;
-    std::cout << fmt % topology_counter % it.first % top[boost::graph_bundle].hash() % final_state(top) % to_string(top);
+    std::cout << fmt % topology_counter % it.first % top[boost::graph_bundle].hash() % adjast_utf_string(final_state(top),20) % adjast_utf_string(to_string(top),60);
     for(auto hash : top[boost::graph_bundle].hash_list)
     {
       std::cout << std::hex << hash << ",";
