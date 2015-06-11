@@ -55,10 +55,11 @@ decay_topology_t McTopoAdaptor::MakeDecayTopology(void)
   return top;
 }
 
-std::map<decay_topology_t, Long64_t> McTopoAdaptor::Count(int opt)
+std::map<decay_topology_t, Long64_t> McTopoAdaptor::Count(unsigned long long  N, int opt)
 {
   if (fChain == 0) throw std::runtime_error("No chain");
   Long64_t nentries = fChain->GetEntriesFast();
+  if(N>0) nentries = N;
   std::map<decay_topology_t, Long64_t> TopoMap;
   Long64_t nbytes = 0, nb = 0;
   Long64_t event_counter=0;

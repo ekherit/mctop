@@ -15,7 +15,7 @@ struct McTopoAdaptor : public McTopo
   McTopoAdaptor(McTopo &);
   McTopoAdaptor(std::string tree_name);
   void AddFile(std::string  file_name);
-  std::map<decay_topology_t, Long64_t> Count(int opt = Option::NONE);
+  std::map<decay_topology_t, Long64_t> Count(unsigned long long N=0, int opt = Option::NONE);
   decay_topology_t MakeDecayTopology(void);
   virtual void     Loop(){};
 };
