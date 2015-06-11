@@ -95,6 +95,7 @@ int main(int argc, char ** argv)
     {
       std::cout << std::hex << hash << ",";
     }
+    std::cout << std::dec;
     std::cout << std::endl;
     topology_counter++;
     event_counter+=it.first;
