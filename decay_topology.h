@@ -24,9 +24,9 @@ struct particle_t
 
 struct topology_property_t
 {
-  //std::list<Long64_t> hash_list;
-  //Long64_t hash(void) { return hash_list.front(); };
-  unsigned long hash;
+  std::list<unsigned long> hash_list;
+  unsigned long hash(void) const { return hash_list.front(); };
+  //unsigned long hash; 
 };
 
 typedef boost::adjacency_list <boost::vecS,boost::vecS,boost::bidirectionalS,particle_t, boost::no_property, topology_property_t > decay_topology_t;
@@ -35,22 +35,14 @@ typedef boost::graph_traits<decay_topology_t>::vertex_descriptor vertex_t;
 
 inline bool operator<(const decay_topology_t & top1, const decay_topology_t & top2)
 {
-  return top1[boost::graph_bundle].hash < top2[boost::graph_bundle].hash;
+  return top1[boost::graph_bundle].hash() < top2[boost::graph_bundle].hash();
 };
-
-
-//inline bool operator==(const decay_topology_t & top1, const decay_topology_t & top2)
-//{
-//  return top1[boost::graph_bundle].hash == top2[boost::graph_bundle].hash;
-//};
-
 
 
 struct PdgComp //lower |pdgid| go first positive charged go first, 
 {
   const decay_topology_t & top;
   PdgComp(const decay_topology_t & t) : top(t) {}
-  //bool operator()(int i1, int i2)
   bool operator()(auto i1, auto i2)
   {
     if(abs(top[i1].pdgid) == abs(top[i2].pdgid))
@@ -182,6 +174,7 @@ inline unsigned long hash(const decay_topology_t & top)
   std::function<void(vertex_t)> loop;
   loop = [&](vertex_t idx)
   {
+    if(top[idx].pdgid==0) return; //supress wrong partiles
     crc(top[idx].pdgid);
     boost::graph_traits<decay_topology_t>::adjacency_iterator i,begin, end;
     tie(begin, end) = adjacent_vertices(idx, top);
@@ -197,44 +190,32 @@ inline unsigned long hash(const decay_topology_t & top)
   return crc.checksum();
 };
 
+inline void add_hash(decay_topology_t &top)
+{
+  auto & lst  = top[boost::graph_bundle].hash_list;
+  lst.push_front(hash(top)); //add new hash wich should go first
+}
+
 inline decay_topology_t conj(const decay_topology_t  & top)
 {
   auto atop = top; //antiparticle topology
   boost::graph_traits <decay_topology_t>::vertex_iterator it, end;
   for(tie(it, end) = boost::vertices(atop); it!=end; ++it)
   {
-    int & pdgid = atop[*it].pdgid;
-    auto & name = atop[*it].name;
+     int & pdgid = atop[*it].pdgid;
+    auto & name  = atop[*it].name;
     //check neutral 
     auto aname = PdgTable[-pdgid];
     if( aname == name) continue; 
     pdgid = - pdgid;
     name = aname;
   }
-  atop[boost::graph_bundle].hash = hash(atop); //recalculate hash
+  add_hash(atop);
   return atop;
 }
 
 inline void remove_particle(int pdgid, decay_topology_t & top)
 {
-  boost::graph_traits <decay_topology_t>::vertex_iterator it, end;
-  //плохо работало в цикле очистка вершин и затем одновременное удаление.
-  //вначале надо было очистить по списку а затем вторым проходом удалять вершину.
-  //for(tie(it, end) = boost::vertices(top); it!=end; ++it)
-  //{
-  //  if(top[*it].pdgid == pdgid)
-  //  {
-  //    clear_vertex(*it,top);
-  //  }
-  //}
-  //for(tie(it, end) = boost::vertices(top); it!=end; ++it)
-  //{
-  //  if(top[*it].pdgid == pdgid)
-  //  {
-  //    remove_vertex(*it,top);
-  //  }
-  //}
-
   boost::graph_traits<decay_topology_t>::vertex_iterator vi, vi_end, next;
   tie(vi, vi_end) = vertices(top);
   for (next = vi; vi != vi_end; vi = next) 
@@ -246,6 +227,7 @@ inline void remove_particle(int pdgid, decay_topology_t & top)
       remove_vertex(*vi, top);
     }
   }
+  add_hash(top);
 }
 
 

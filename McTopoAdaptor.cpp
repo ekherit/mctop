@@ -51,6 +51,7 @@ decay_topology_t McTopoAdaptor::MakeDecayTopology(void)
       }
     }
   }
+  add_hash(top);
   return top;
 }
 
@@ -67,17 +68,27 @@ std::map<decay_topology_t, Long64_t> McTopoAdaptor::Count(int opt)
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     decay_topology_t top = MakeDecayTopology();
+    auto initial_hash = top[boost::graph_bundle].hash();
     //remove radiative photons if needed
-    if(opt & REDUCE_PHOTON) remove_particle(-22,top);
-    //merge process and conjugated process
-    top[boost::graph_bundle].hash = hash(top);
-    auto  it = TopoMap.find(top);
-    if(opt & REDUCE && it == end(TopoMap)) //if unable to find topology the conjucate it
+    if(opt & REDUCE_PHOTON) 
     {
-      top = conj(top);
+      remove_particle(-22,top);
     }
-    //cout topology
-    TopoMap[top]++;
+    auto  it = TopoMap.find(top);
+    if(it == end(TopoMap)) //if unable to find topology the conjucate it
+    {
+      if(opt & REDUCE) top = conj(top);
+      it = TopoMap.insert(it,{top,0});
+    }
+    //now it is alwais look into existing topology
+    it->second++; //count topology
+    //update hash list
+    std::list<unsigned long> &  lst = const_cast<std::list<unsigned long>&>(it->first[boost::graph_bundle].hash_list);
+    std::list<unsigned long>::iterator i = begin(lst); //pointer to main hash
+    lst.insert(lst.end(),initial_hash);
+    lst.sort();
+    std::swap(*i,*begin(lst));
+    lst.unique();
   }
   return TopoMap;
 }

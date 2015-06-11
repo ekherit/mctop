@@ -60,46 +60,22 @@ int main(int argc, char ** argv)
   std::multimap<Long64_t, decay_topology_t> CountMap;
   for(auto & it : TopoMap)
   {
-    CountMap.insert({it.second,it.first});
+    CountMap.insert(std::pair<Long64_t, decay_topology_t>(it.second,it.first));
   }
-  boost::format fmt_head("%5s %10s %15s  %-20s  %-70s ");
-  boost::format      fmt("%5d %10d %15x  %-20s  %-70s ");
+  boost::format fmt_head("%5s %10s %15s  %-20s  %-70s");
+  boost::format      fmt("%5d %10d %15x  %-20s  %-70s");
   std::cout << fmt_head % "#" % "count" % "hash" % "final state" % "topology" << std::endl;
   Long64_t event_counter =0;
   Long64_t topology_counter=0;
   for(auto & it : CountMap)
   {
     auto & top = it.second;
-    //std::list<int> root_list;
-    //find_root(top,root_list,0);
-    //std::function<void(int)> print_topo;
-    //std::ostringstream os;
-    //print_topo = [&](int idx)
-    //{
-    //  decay_topology_t::adjacency_iterator begin, end;
-    //  tie(begin, end) = adjacent_vertices(idx, top);
-    //  std::string name = top[idx].name;
-    //  if(name == "") name = "["+std::to_string(top[idx].pdgid)+"]";
-    //  if(begin != end)
-    //  {
-    //    os << "(" << name << " -> ";
-    //    for (; begin != end; ++begin)
-    //    {   
-    //      print_topo(*begin);
-    //    }
-    //    os << ")";
-    //  }
-    //  else 
-    //  {
-    //    os << name;
-    //  }
-    //};
-    //for(auto root : root_list)
-    //{
-    //  print_topo(root);
-    //  os << ",";
-    //}
-    std::cout << fmt % topology_counter % it.first % top[boost::graph_bundle].hash % final_state(top) % to_string(top)   << std::endl;
+    std::cout << fmt % topology_counter % it.first % top[boost::graph_bundle].hash() % final_state(top) % to_string(top);
+    for(auto hash : top[boost::graph_bundle].hash_list)
+    {
+      std::cout << std::hex << hash << ",";
+    }
+    std::cout << std::endl;
     topology_counter++;
     event_counter+=it.first;
   }
