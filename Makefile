@@ -1,7 +1,7 @@
 all : mctopo libMyEvent.so
 
 LIBS = `root-config --libs` -lMinuit  -lboost_program_options
-CXXFLAGS = `root-config --cflags`  -std=c++1y
+CXXFLAGS = `root-config --cflags`  -std=c++1y -fPIC
 
 BINDIR=$(HOME)/work/bin
 
@@ -23,14 +23,14 @@ libMcTopoDict.o . :  libMcTopoDict.cxx
 
 
 libMcTopo.so: McTopoAdaptor.o  McTopo.o libMcTopoDict.o
-		g++ -shared -o libMcTopo.so  McTopoAdaptor.o  McTopo.o libMcTopoDict.o $(LIBS)
+		g++ -fPIC -shared -o libMcTopo.so  McTopoAdaptor.o  McTopo.o libMcTopoDict.o $(LIBS)
 
 
 libMyEvent.so : MyEvent.o MyEventDict.o McTopo.o McTopoAdaptor.o
-		g++ -shared  MyEvent.o MyEventDict.o McTopo.o McTopoAdaptor.o -o libMyEvent.so $(LIBS)
+		g++ -fPIC -shared  MyEvent.o MyEventDict.o McTopo.o McTopoAdaptor.o -o libMyEvent.so $(LIBS)
 
 MyEvent.o : MyEvent.cxx
-		g++ -o MyEvent.o $(CXXFLAGS) -c MyEvent.cxx
+		g++ -fPIC -o MyEvent.o $(CXXFLAGS) -c MyEvent.cxx
 
 MyEventDict.cxx : MyEvent.h LinkDef.h
 		rootcint -f MyEventDict.cxx -c MyEvent.h LinkDef.h
