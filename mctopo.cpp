@@ -97,8 +97,9 @@ int main(int argc, char ** argv)
   std::cout << "Loading files:"<< std::endl;
   for(int i=1;i<tree_files.size(); i++)
   {
-    std::cout << "Adding file: " << tree_files[i] << std::endl;
+    std::cout << tree_files[i];
     mctop.AddFile(tree_files[i].c_str());
+    if(i+1 < tree_files.size())  std::cout << ',';
   }
   int count_option=NONE;
   if(opt.count("nogamma")) count_option |=  REDUCE_PHOTON;
@@ -123,7 +124,7 @@ int main(int argc, char ** argv)
   for(auto & it : CountMap)
   {
     auto & top = it.second;
-    std::cout << fmt_data % topology_counter % it.first % format(final_state(top),final_state_width) % format(to_string(top),topology_info_width);
+    std::cout << fmt_data % (topology_counter+1) % it.first % format(final_state(top),final_state_width) % format(to_string(top),topology_info_width);
     std::cout << std::hex;
     for(auto hi = begin(top[boost::graph_bundle].hash_list); hi!=end(top[boost::graph_bundle].hash_list); hi++)
     {
@@ -138,10 +139,4 @@ int main(int argc, char ** argv)
     event_counter+=it.first;
   }
   std::cout << "Total number of events: " << event_counter << std::endl;
-  if(!CountMap.empty())
-  {
-    std::cout << "Found " << CountMap.size() << " different topologies" << std::endl;
-    std::cout << "Most probable topology: " << CountMap.rbegin()->first << std::endl;
-    std::cout << "Other topologies: " << event_counter - CountMap.rbegin()->first << std::endl;
-  }
 };

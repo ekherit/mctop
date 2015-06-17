@@ -51,16 +51,6 @@ public :
 #ifdef McTopo_cxx
 McTopo::McTopo(TTree *tree) : fChain(0) 
 {
-// if parameter tree is not specified (or zero), connect the file
-// used to generate this class and read the Tree.
-   if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("../JpsiKK/analysis/mckkuu09-1.root");
-      if (!f || !f->IsOpen()) {
-         f = new TFile("../JpsiKK/analysis/mckkuu09-1.root");
-      }
-      f->GetObject("mctopoKK",tree);
-
-   }
    Init(tree);
 }
 
