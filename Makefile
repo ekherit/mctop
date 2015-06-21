@@ -1,4 +1,4 @@
-all : mctopo libMyEvent.so
+all : mctopo libMcTopo.so
 
 LIBS = `root-config --libs` -lMinuit  -lboost_program_options
 CXXFLAGS = `root-config --cflags`  -std=c++1y -fPIC
@@ -15,28 +15,17 @@ McTopoAdaptor.o : McTopoAdaptor.cpp McTopoAdaptor.h pdg_table.h decay_topology.h
 		g++ -o McTopoAdaptor.o $(CXXFLAGS) -c McTopoAdaptor.cpp 
 
 
-#libMcTopoDict.cxx : McTopoLinkDef.h libMcTopo.h
-#		rootcint -f libMcTopoDict.cxx -c libMcTopo.h McTopoLinkDef.h
-#		
-#libMcTopoDict.o . :  libMcTopoDict.cxx
-#		g++ -o libMcTopoDict.o $(CXXFLAGS) -c libMcTopoDict.cxx
-#
-#
-#libMcTopo.so: McTopoAdaptor.o  McTopo.o libMcTopoDict.o
-#		g++ -fPIC -shared -o libMcTopo.so  McTopoAdaptor.o  McTopo.o libMcTopoDict.o $(LIBS)
+libMcTopo.so : libMcTopo.o libMcTopoDict.o McTopo.o McTopoAdaptor.o
+		g++ -fPIC -shared  libMcTopo.o libMcTopoDict.o McTopo.o McTopoAdaptor.o -o libMcTopo.so $(LIBS)
 
+libMcTopo.o : libMcTopo.cxx
+		g++ -fPIC -o libMcTopo.o $(CXXFLAGS) -c libMcTopo.cxx
 
-libMyEvent.so : MyEvent.o MyEventDict.o McTopo.o McTopoAdaptor.o
-		g++ -fPIC -shared  MyEvent.o MyEventDict.o McTopo.o McTopoAdaptor.o -o libMyEvent.so $(LIBS)
-
-MyEvent.o : MyEvent.cxx
-		g++ -fPIC -o MyEvent.o $(CXXFLAGS) -c MyEvent.cxx
-
-MyEventDict.cxx : MyEvent.h LinkDef.h
-		rootcint -f MyEventDict.cxx -c MyEvent.h LinkDef.h
+libMcTopoDict.cxx : libMcTopo.h libMcTopoLinkDef.h
+		rootcint -f libMcTopoDict.cxx -c libMcTopo.h libMcTopoLinkDef.h
 	
-MyEventDict.o :  MyEventDict.cxx
-		g++ -o MyEventDict.o $(CXXFLAGS) -c MyEventDict.cxx
+libMcTopoDict.o :  libMcTopoDict.cxx
+		g++ -o libMcTopoDict.o $(CXXFLAGS) -c libMcTopoDict.cxx
 
 clean :
-		@rm -f $(BINDIR)/mctop *.o *.so *Dict.h *Dict.cxx
+		@rm -f $(BINDIR)/mctopo *.o *.so *Dict.h *Dict.cxx

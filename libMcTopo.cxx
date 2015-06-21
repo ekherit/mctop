@@ -1,4 +1,4 @@
-#include "MyEvent.h"
+#include "libMcTopo.h"
 #include <iostream>
 #include "McTopoAdaptor.h"
 ClassImp(MyEvent);
