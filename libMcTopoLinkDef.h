@@ -5,13 +5,14 @@
 
 //#pragma link C++ function hash(McTopo *);
 
-#pragma link C++ class MyEvent;
+//#pragma link C++ class MyEvent;
 #pragma link C++ class McTopo;
 #pragma link C++ class McTopoAdaptor;
-#pragma link C++ function test_hash(int);
-#pragma link C++ function test_hash(double);
-#pragma link C++ function test_hash(McTopo *);
-#pragma link C++ function test_hash2(McTopo *);
-#pragma link C++ function info(McTopo *);
+#pragma link C++ function topology_hash(McTopo *);
+#pragma link C++ function topology_info(McTopo *);
+//#pragma link C++ function test_hash(int);
+//#pragma link C++ function test_hash(double);
+//#pragma link C++ function test_hash(McTopo *);
+//#pragma link C++ function test_hash2(McTopo *);
 
 #endif
