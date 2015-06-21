@@ -31,28 +31,33 @@ void McTopoAdaptor::AddFile(std::string  file_name)
   }
 }
 
-decay_topology_t McTopoAdaptor::MakeDecayTopology(void)
+decay_topology_t make_topology(const McTopo  & m)
 {
   decay_topology_t top;
   //fill the topology
-  for(int i=0;i<indexmc; i++)
+  for(int i=0;i<m.indexmc; i++)
   {
-    for(int j=0;j<indexmc;j++)
+    for(int j=0;j<m.indexmc;j++)
     {
-      if(idx[i] == motheridx[j])
+      if(m.idx[i] == m.motheridx[j])
       {
         vertex_t parent(i);
         vertex_t child(j);
         boost::add_edge(parent,child,top);
         top[parent].name = PdgTable[top[parent].pdgid];
-        top[parent].pdgid = pdgid[parent];
-        top[child].pdgid = pdgid[child];
+        top[parent].pdgid = m.pdgid[parent];
+        top[child].pdgid = m.pdgid[child];
         top[child].name = PdgTable[top[child].pdgid];
       }
     }
   }
   add_hash(top);
   return top;
+}
+
+decay_topology_t McTopoAdaptor::MakeDecayTopology(void)
+{
+  return make_topology(*this);
 }
 
 std::map<decay_topology_t, Long64_t> McTopoAdaptor::Count(unsigned long long  N, int opt)

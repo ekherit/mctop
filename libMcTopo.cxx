@@ -5,17 +5,13 @@
 
 unsigned long topology_hash(McTopo * mctopo)
 {
-  McTopoAdaptor ma(*mctopo);
-  auto topology = ma.MakeDecayTopology();
-  return ::hash(topology);
+  return ::hash(make_topology(*mctopo));
 }
 
 
 const char * topology_info(McTopo *mctopo)
 {
-  McTopoAdaptor ma(*mctopo);
-  auto topology = ma.MakeDecayTopology();
-  return to_string(topology).c_str();
+  return to_string(make_topology(*mctopo)).c_str();
 }
 
 

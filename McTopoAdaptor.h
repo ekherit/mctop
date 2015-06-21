@@ -9,6 +9,9 @@
 #include "McTopo.h"
 
 #include <TChain.h>
+
+decay_topology_t make_topology(const McTopo & );
+
 struct McTopoAdaptor : public McTopo
 {
   TChain * chain=0;
