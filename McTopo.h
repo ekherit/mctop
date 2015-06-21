@@ -57,7 +57,6 @@ McTopo::McTopo(TTree *tree) : fChain(0)
 
 McTopo::~McTopo()
 {
-  std::cout << "Destructiong McTopo" << std::endl;
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 }
