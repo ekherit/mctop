@@ -43,7 +43,7 @@ struct PdgComp //lower |pdgid| go first positive charged go first,
 {
   const decay_topology_t & top;
   PdgComp(const decay_topology_t & t) : top(t) {}
-  bool operator()(auto i1, auto i2)
+  bool operator()(vertex_t & i1, vertex_t & i2)
   {
     if(abs(top[i1].pdgid) == abs(top[i2].pdgid))
     {
@@ -193,7 +193,7 @@ inline unsigned long hash(const decay_topology_t & top)
 inline void add_hash(decay_topology_t &top)
 {
   auto & lst  = top[boost::graph_bundle].hash_list;
-  lst.push_front(hash(top)); //add new hash wich should go first
+  lst.push_front(::hash(top)); //add new hash wich should go first
 }
 
 inline decay_topology_t conj(const decay_topology_t  & top)

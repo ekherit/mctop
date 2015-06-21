@@ -3,6 +3,7 @@
 #include <TObject.h>
 
 #include "McTopo.h"
+#include "McTopoAdaptor.h"
 
 //unsigned long hash(McTopo * mctop);
 unsigned long test_hash(int i);

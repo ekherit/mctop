@@ -14,7 +14,7 @@
 #include <boost/program_options.hpp>
 
 
-void print_byte(ostream & os, unsigned char c)
+void print_byte(std::ostream & os, unsigned char c)
 {
   for(int b = 7;b>=0;b--) os << ((c >> b) & 0x1);
 }

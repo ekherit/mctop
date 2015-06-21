@@ -7,6 +7,7 @@
 
 #pragma link C++ class MyEvent;
 #pragma link C++ class McTopo;
+#pragma link C++ class McTopoAdaptor;
 #pragma link C++ function test_hash(int);
 #pragma link C++ function test_hash(double);
 #pragma link C++ function test_hash(McTopo *);

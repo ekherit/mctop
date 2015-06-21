@@ -5,7 +5,7 @@ CXXFLAGS = `root-config --cflags`  -std=c++1y -fPIC
 
 BINDIR=$(HOME)/work/bin
 
-mctopo : McTopoAdaptor.o  McTopo.o mctopo.cpp pdg_table.h decay_topology.h mctop.h
+mctopo : McTopoAdaptor.o  McTopo.o mctopo.cpp pdg_table.h decay_topology.h 
 		g++ -o $(BINDIR)/mctopo $(CXXFLAGS)  mctopo.cpp $(LIBS) McTopoAdaptor.o McTopo.o
 
 McTopo.o : McTopo.cpp
@@ -15,15 +15,15 @@ McTopoAdaptor.o : McTopoAdaptor.cpp McTopoAdaptor.h pdg_table.h decay_topology.h
 		g++ -o McTopoAdaptor.o $(CXXFLAGS) -c McTopoAdaptor.cpp 
 
 
-libMcTopoDict.cxx : McTopoLinkDef.h libMcTopo.h
-		rootcint -f libMcTopoDict.cxx -c libMcTopo.h McTopoLinkDef.h
-		
-libMcTopoDict.o . :  libMcTopoDict.cxx
-		g++ -o libMcTopoDict.o $(CXXFLAGS) -c libMcTopoDict.cxx
-
-
-libMcTopo.so: McTopoAdaptor.o  McTopo.o libMcTopoDict.o
-		g++ -fPIC -shared -o libMcTopo.so  McTopoAdaptor.o  McTopo.o libMcTopoDict.o $(LIBS)
+#libMcTopoDict.cxx : McTopoLinkDef.h libMcTopo.h
+#		rootcint -f libMcTopoDict.cxx -c libMcTopo.h McTopoLinkDef.h
+#		
+#libMcTopoDict.o . :  libMcTopoDict.cxx
+#		g++ -o libMcTopoDict.o $(CXXFLAGS) -c libMcTopoDict.cxx
+#
+#
+#libMcTopo.so: McTopoAdaptor.o  McTopo.o libMcTopoDict.o
+#		g++ -fPIC -shared -o libMcTopo.so  McTopoAdaptor.o  McTopo.o libMcTopoDict.o $(LIBS)
 
 
 libMyEvent.so : MyEvent.o MyEventDict.o McTopo.o McTopoAdaptor.o
