@@ -18,6 +18,7 @@ struct McTopo : public McTopoBase
 	McTopo(TTree * tree =0);
   McTopo(McTopoBase &);
   McTopo(std::string tree_name);
+	virtual ~McTopo(void) {};
   void AddFile(std::string  file_name);
   std::map<decay_topology_t, Long64_t> Count(unsigned long long N=0, int opt = Option::NONE);
   decay_topology_t MakeDecayTopology(void) const;

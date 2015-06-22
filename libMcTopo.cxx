@@ -3,18 +3,20 @@
 
 unsigned long topology_hash(McTopoBase * mctopo)
 {
-	McTopo m(*mctopo);
-  ///return ::hash(make_topology(*mctopo));
-	return m.hash();
+	//McTopo m(*mctopo);
+  /////return ::hash(make_topology(*mctopo));
+	//return m.hash();
+	return 33;
 }
 
 
 
 std::string topology_info(McTopoBase *mctopo)
 {
-	McTopo m(*mctopo);
-  //return to_string(make_topology(*mctopo)).c_str();
-	return m.info();
+	//McTopo m(*mctopo);
+  ////return to_string(make_topology(*mctopo)).c_str();
+	//return m.info();
+	return " ";
 }
 
 
