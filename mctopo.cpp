@@ -8,7 +8,7 @@
 
 #include "pdg_table.h"
 
-#include "McTopoAdaptor.h"
+#include "McTopo.h"
 
 #include <boost/format.hpp>
 #include <boost/program_options.hpp>
@@ -93,7 +93,7 @@ int main(int argc, char ** argv)
     std::clog << opt_desc;
     return 0;
   }
-  McTopoAdaptor mctop(tree_files[0]);
+  McTopo mctop(tree_files[0]);
   std::cout << "Loading files:"<< std::endl;
   for(int i=1;i<tree_files.size(); i++)
   {

@@ -1,17 +1,20 @@
 #include "libMcTopo.h"
 #include <iostream>
-#include "McTopoAdaptor.h"
 
-
-unsigned long topology_hash(McTopo * mctopo)
+unsigned long topology_hash(McTopoBase * mctopo)
 {
-  return ::hash(make_topology(*mctopo));
+	McTopo m(*mctopo);
+  ///return ::hash(make_topology(*mctopo));
+	return m.hash();
 }
 
 
-const char * topology_info(McTopo *mctopo)
+
+std::string topology_info(McTopoBase *mctopo)
 {
-  return to_string(make_topology(*mctopo)).c_str();
+	McTopo m(*mctopo);
+  //return to_string(make_topology(*mctopo)).c_str();
+	return m.info();
 }
 
 

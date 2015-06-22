@@ -3,10 +3,11 @@
 #include <TObject.h>
 
 #include "McTopo.h"
-#include "McTopoAdaptor.h"
 
-unsigned long topology_hash(McTopo * mctopo);
-const char  * topology_info(McTopo * mctopo);
+#include <string>
+unsigned long topology_hash(McTopoBase * mctopo);
+//const char  * topology_info(McTopoBase * mctopo);
+std::string topology_info(McTopoBase * mctopo);
 
 //class MyEvent : public TObject
 //{

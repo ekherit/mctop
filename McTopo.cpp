@@ -1,43 +1,121 @@
-#define McTopo_cxx
 #include "McTopo.h"
-#include <TH2.h>
-#include <TStyle.h>
-#include <TCanvas.h>
 
-void McTopo::Loop()
+McTopo::McTopo(TTree * tree) : McTopoBase(tree)
 {
-//   In a ROOT session, you can do:
-//      Root > .L McTopo.C
-//      Root > McTopo t
-//      Root > t.GetEntry(12); // Fill t data members with entry number 12
-//      Root > t.Show();       // Show values of entry 12
-//      Root > t.Show(16);     // Read and show values of entry 16
-//      Root > t.Loop();       // Loop on all entries
-//
 
-//     This is the loop skeleton where:
-//    jentry is the global entry number in the chain
-//    ientry is the entry number in the current Tree
-//  Note that the argument to GetEntry must be:
-//    jentry for TChain::GetEntry
-//    ientry for TTree::GetEntry and TBranch::GetEntry
-//
-//       To read only selected branches, Insert statements like:
-// METHOD1:
-//    fChain->SetBranchStatus("*",0);  // disable all branches
-//    fChain->SetBranchStatus("branchname",1);  // activate branchname
-// METHOD2: replace line
-//    fChain->GetEntry(jentry);       //read all branches
-//by  b_branchname->GetEntry(ientry); //read only this branch
-   if (fChain == 0) return;
+}
 
-   Long64_t nentries = fChain->GetEntriesFast();
+McTopo::McTopo(McTopoBase & mctopo)
+{
+  //fChain = mctopo.fChain;
+  //chain = (TChain*) fChain;
+  //Init(fChain);
+  chain =0;
+  fChain = 0;
+  indexmc = mctopo.indexmc;
+  for(int i =0;i<indexmc;i++)
+  {
+    pdgid[i] = mctopo.pdgid[i];
+    motheridx[i] = mctopo.motheridx[i];
+    idx[i] = mctopo.idx[i];
+  }
+}
 
-   Long64_t nbytes = 0, nb = 0;
-   for (Long64_t jentry=0; jentry<nentries;jentry++) {
-      Long64_t ientry = LoadTree(jentry);
-      if (ientry < 0) break;
-      nb = fChain->GetEntry(jentry);   nbytes += nb;
-      // if (Cut(ientry) < 0) continue;
-   }
+McTopo::McTopo(std::string tree_name)
+{
+  chain= new TChain(tree_name.c_str(), tree_name.c_str());
+  fChain=chain;
+  Init(fChain);
+}
+
+void McTopo::AddFile(std::string  file_name)
+{
+  if(chain)
+  {
+    chain->AddFile(file_name.c_str());
+  }
+}
+
+decay_topology_t make_topology(const McTopo  & m)
+{
+  decay_topology_t top;
+  //fill the topology
+  for(int i=0;i<m.indexmc; i++)
+  {
+    for(int j=0;j<m.indexmc;j++)
+    {
+      if(m.idx[i] == m.motheridx[j])
+      {
+        vertex_t parent(i);
+        vertex_t child(j);
+        boost::add_edge(parent,child,top);
+        top[parent].name = PdgTable[top[parent].pdgid];
+        top[parent].pdgid = m.pdgid[parent];
+        top[child].pdgid = m.pdgid[child];
+        top[child].name = PdgTable[top[child].pdgid];
+      }
+    }
+  }
+  add_hash(top);
+  return top;
+}
+
+
+
+
+
+decay_topology_t McTopo::MakeDecayTopology(void) const
+{
+  return make_topology(*this);
+}
+
+unsigned long McTopo::hash(void) const 
+{
+	decay_topology_t top = MakeDecayTopology();
+	return ::hash(top);
+}
+
+
+std::string McTopo::info(void) const 
+{
+	return to_string(make_topology(*this));
+}
+
+std::map<decay_topology_t, Long64_t> McTopo::Count(unsigned long long  N, int opt)
+{
+  if (fChain == 0) throw std::runtime_error("No chain");
+  Long64_t nentries = fChain->GetEntriesFast();
+  if(N>0) nentries = N;
+  std::map<decay_topology_t, Long64_t> TopoMap;
+  Long64_t nbytes = 0, nb = 0;
+  Long64_t event_counter=0;
+  for (Long64_t jentry=0; jentry<nentries;jentry++,event_counter++)
+  {
+    Long64_t ientry = LoadTree(jentry);
+    if (ientry < 0) break;
+    nb = fChain->GetEntry(jentry);   nbytes += nb;
+    decay_topology_t top = MakeDecayTopology();
+    auto initial_hash = top[boost::graph_bundle].hash();
+    //remove radiative photons if needed
+    if(opt & REDUCE_PHOTON) 
+    {
+      remove_particle(-22,top);
+    }
+    auto  it = TopoMap.find(top);
+    if(it == end(TopoMap)) //if unable to find topology the conjucate it
+    {
+      if(opt & REDUCE) top = conj(top);
+      it = TopoMap.insert(it,{top,0});
+    }
+    //now it is alwais look into existing topology
+    it->second++; //count topology
+    //update hash list
+    std::list<unsigned long> &  lst = const_cast<std::list<unsigned long>&>(it->first[boost::graph_bundle].hash_list);
+    std::list<unsigned long>::iterator i = begin(lst); //pointer to main hash
+    lst.insert(lst.end(),initial_hash);
+    lst.sort();
+    std::swap(*i,*begin(lst));
+    lst.unique();
+  }
+  return TopoMap;
 }
