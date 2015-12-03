@@ -69,10 +69,11 @@ decay_topology_t McTopo::MakeDecayTopology(void) const
   return make_topology(*this);
 }
 
-unsigned long McTopo::hash(void) const 
+unsigned long McTopo::hash(void)
 {
 	decay_topology_t top = MakeDecayTopology();
-	return ::hash(top);
+  McTopoBase::hash = ::hash(top);
+	return McTopoBase::hash;
 }
 
 

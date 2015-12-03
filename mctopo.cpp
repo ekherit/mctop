@@ -101,6 +101,7 @@ int main(int argc, char ** argv)
     mctop.AddFile(tree_files[i].c_str());
     if(i+1 < tree_files.size())  std::cout << ',';
   }
+  std::cout << std::endl;
   int count_option=NONE;
   if(opt.count("nogamma")) count_option |=  REDUCE_PHOTON;
   if(opt.count("reduce"))  count_option |=  REDUCE;

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <tuple>
 
 #include <boost/crc.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -78,7 +79,7 @@ inline std::list<vertex_t> find_root(const  decay_topology_t &  top)
   std::list<vertex_t>  root_list;
   boost::graph_traits <decay_topology_t>::vertex_iterator it, end;
   //loop over all particles
-  for(tie(it, end) = boost::vertices(top); it!=end; ++it)
+  for(std::tie(it, end) = boost::vertices(top); it!=end; ++it)
   {
     decay_topology_t::in_edge_iterator in_begin, in_end;
     boost::tie(in_begin, in_end) = boost::in_edges(*it,top);
@@ -144,7 +145,7 @@ inline std::string final_state(const  decay_topology_t & top)
   typedef boost::graph_traits <decay_topology_t>::vertex_iterator  VI_t ;
   VI_t it, end;
   std::list<vertex_t> lst;
-  for(tie(it, end) = boost::vertices(top); it!=end; ++it)
+  for(std::tie(it, end) = boost::vertices(top); it!=end; ++it)
   {
     decay_topology_t::adjacency_iterator begin, end;
     tie(begin, end) = adjacent_vertices(*it, top);
@@ -200,7 +201,7 @@ inline decay_topology_t conj(const decay_topology_t  & top)
 {
   auto atop = top; //antiparticle topology
   boost::graph_traits <decay_topology_t>::vertex_iterator it, end;
-  for(tie(it, end) = boost::vertices(atop); it!=end; ++it)
+  for(std::tie(it, end) = boost::vertices(atop); it!=end; ++it)
   {
      int & pdgid = atop[*it].pdgid;
     auto & name  = atop[*it].name;
@@ -217,7 +218,7 @@ inline decay_topology_t conj(const decay_topology_t  & top)
 inline void remove_particle(int pdgid, decay_topology_t & top)
 {
   boost::graph_traits<decay_topology_t>::vertex_iterator vi, vi_end, next;
-  tie(vi, vi_end) = vertices(top);
+  std::tie(vi, vi_end) = vertices(top);
   for (next = vi; vi != vi_end; vi = next) 
   {
     ++next;

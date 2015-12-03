@@ -22,7 +22,7 @@ struct McTopo : public McTopoBase
   void AddFile(std::string  file_name);
   std::map<decay_topology_t, Long64_t> Count(unsigned long long N=0, int opt = Option::NONE);
   decay_topology_t MakeDecayTopology(void) const;
-	unsigned long hash(void) const;
+	unsigned long hash(void);
 	std::string info(void) const;
   virtual void     Loop(){};
 };

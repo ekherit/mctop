@@ -1,7 +1,7 @@
 all : mctopo libMcTopo.so
 
 LIBS = `root-config --libs` -lMinuit  -lboost_program_options
-CXXFLAGS = `root-config --cflags`  -std=c++1y -fPIC
+CXXFLAGS = `root-config --cflags` -std=c++14 -fPIC
 
 BINDIR=$(HOME)/work/bin
 
