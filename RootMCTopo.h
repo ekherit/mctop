@@ -1,21 +1,20 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Mon Jun 22 04:37:25 2015 by ROOT version 6.04/01
-// from TTree mctopoKK/mcTopo KK events
-// found on file: data12-Mrec90MeV.root
+// Wed Dec  2 20:01:56 2015 by ROOT version 6.04/10
+// from TTree mctopo/Monte Carlo truth information topology
+// found on file: sample.root
 //////////////////////////////////////////////////////////
 
-#ifndef McTopoBase_h
-#define McTopoBase_h
+#ifndef RootMCTopo_h
+#define RootMCTopo_h
 
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
-#include <iostream>
 
 // Header file for the classes stored in the TTree if any.
 
-class McTopoBase {
+class RootMCTopo {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
@@ -36,8 +35,8 @@ public :
    TBranch        *b_idx;   //!
    TBranch        *b_hash;   //!
 
-   McTopoBase(TTree *tree=0);
-   virtual ~McTopoBase();
+   RootMCTopo(TTree *tree=0);
+   virtual ~RootMCTopo();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -49,35 +48,35 @@ public :
 
 #endif
 
-#ifdef McTopoBase_cxx
-McTopoBase::McTopoBase(TTree *tree) : fChain(0) 
+#ifdef RootMCTopo_cxx
+RootMCTopo::RootMCTopo(TTree *tree) : fChain(0) 
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("data12-Mrec90MeV.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("sample.root");
       if (!f || !f->IsOpen()) {
-         f = new TFile("data12-Mrec90MeV.root");
+         f = new TFile("sample.root");
       }
-      f->GetObject("mctopoKK",tree);
+      f->GetObject("mctopo",tree);
 
    }
    Init(tree);
 }
 
-McTopoBase::~McTopoBase()
+RootMCTopo::~RootMCTopo()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 }
 
-Int_t McTopoBase::GetEntry(Long64_t entry)
+Int_t RootMCTopo::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
    if (!fChain) return 0;
    return fChain->GetEntry(entry);
 }
-Long64_t McTopoBase::LoadTree(Long64_t entry)
+Long64_t RootMCTopo::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
    if (!fChain) return -5;
@@ -90,7 +89,7 @@ Long64_t McTopoBase::LoadTree(Long64_t entry)
    return centry;
 }
 
-void McTopoBase::Init(TTree *tree)
+void RootMCTopo::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -109,16 +108,12 @@ void McTopoBase::Init(TTree *tree)
    fChain->SetBranchAddress("indexmc", &indexmc, &b_indexmc);
    fChain->SetBranchAddress("pdgid", pdgid, &b_pdgid);
    fChain->SetBranchAddress("motheridx", motheridx, &b_motheridx);
-	 fChain->SetBranchAddress("idx", idx, &b_idx);
-	 fChain->SetBranchAddress("hash", &hash, &b_hash);
-	 //std::cout << "SetBranchAddress for idx: ";
-   //std::cout << fChain->SetBranchAddress("idx", idx, &b_idx) << std::endl;
-	 //std::cout << "SetBranchAddress for hash: ";
-   ////std::cout << fChain->SetBranchAddress("hash", &hash, &b_hash) << std::endl;
+   fChain->SetBranchAddress("idx", idx, &b_idx);
+   fChain->SetBranchAddress("hash", &hash, &b_hash);
    Notify();
 }
 
-Bool_t McTopoBase::Notify()
+Bool_t RootMCTopo::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -129,18 +124,18 @@ Bool_t McTopoBase::Notify()
    return kTRUE;
 }
 
-void McTopoBase::Show(Long64_t entry)
+void RootMCTopo::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t McTopoBase::Cut(Long64_t entry)
+Int_t RootMCTopo::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
    return 1;
 }
-#endif // #ifdef McTopoBase_cxx
+#endif // #ifdef RootMCTopo_cxx

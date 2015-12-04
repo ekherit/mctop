@@ -1,14 +1,14 @@
-#define McTopoBase_cxx
-#include "McTopoBase.h"
+#define RootMCTopo_cxx
+#include "RootMCTopo.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 
-void McTopoBase::Loop()
+void RootMCTopo::Loop()
 {
 //   In a ROOT session, you can do:
-//      root> .L McTopoBase.C
-//      root> McTopoBase t
+//      root> .L RootMCTopo.C
+//      root> RootMCTopo t
 //      root> t.GetEntry(12); // Fill t data members with entry number 12
 //      root> t.Show();       // Show values of entry 12
 //      root> t.Show(16);     // Read and show values of entry 16

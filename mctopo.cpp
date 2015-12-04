@@ -5,14 +5,17 @@
 #include <stdexcept>
 #include <iomanip>
 
-
-#include "pdg_table.h"
-
-#include "McTopo.h"
-
 #include <boost/format.hpp>
 #include <boost/program_options.hpp>
 
+#include "pdg_table.h"
+
+//#include "McTopo.h"
+#include "RootMCTopo.h"
+
+
+#include "decay_topology.h"
+#include "Options.h"
 
 void print_byte(std::ostream & os, unsigned char c)
 {
@@ -59,6 +62,68 @@ std::string format(std::string s, int width=0)
   return s+std::string(n,' ');
 }
 
+inline decay_topology_t make_topology(const RootMCTopo  & m)
+{
+  decay_topology_t top;
+  //fill the topology
+  for(int i=0;i<m.indexmc; i++)
+  {
+    for(int j=0;j<m.indexmc;j++)
+    {
+      if(m.idx[i] == m.motheridx[j])
+      {
+        vertex_t parent(i);
+        vertex_t child(j);
+        boost::add_edge(parent,child,top);
+        top[parent].name = PdgTable[top[parent].pdgid];
+        top[parent].pdgid = m.pdgid[parent];
+        top[child].pdgid = m.pdgid[child];
+        top[child].name = PdgTable[top[child].pdgid];
+      }
+    }
+  }
+  add_hash(top);
+  return top;
+}
+
+std::map<decay_topology_t, Long64_t> count_topologies(RootMCTopo * mctopo , unsigned long long  N, int opt)
+{
+  if (mctopo->fChain == 0) throw std::runtime_error("No chain");
+  Long64_t nentries = mctopo->fChain->GetEntriesFast();
+  if(N>0) nentries = N;
+  std::map<decay_topology_t, Long64_t> TopoMap;
+  Long64_t nbytes = 0, nb = 0;
+  Long64_t event_counter=0;
+  for (Long64_t jentry=0; jentry<nentries;jentry++,event_counter++)
+  {
+    Long64_t ientry = mctopo->LoadTree(jentry);
+    if (ientry < 0) break;
+    nb = mctopo->fChain->GetEntry(jentry);   nbytes += nb;
+    decay_topology_t top = make_topology(*mctopo);
+    auto initial_hash = top[boost::graph_bundle].hash();
+    //remove radiative photons if needed
+    if(opt & REDUCE_PHOTON) 
+    {
+      remove_particle(-22,top);
+    }
+    auto  it = TopoMap.find(top);
+    if(it == end(TopoMap)) //if unable to find topology the conjucate it
+    {
+      if(opt & REDUCE) top = conj(top);
+      it = TopoMap.insert(it,{top,0});
+    }
+    //now it is alwais look into existing topology
+    it->second++; //count topology
+    //update hash list
+    std::list<unsigned long> &  lst = const_cast<std::list<unsigned long>&>(it->first[boost::graph_bundle].hash_list);
+    std::list<unsigned long>::iterator i = begin(lst); //pointer to main hash
+    lst.insert(lst.end(),initial_hash);
+    lst.sort();
+    std::swap(*i,*begin(lst));
+    lst.unique();
+  }
+  return TopoMap;
+}
 
 int main(int argc, char ** argv)
 {
@@ -93,19 +158,22 @@ int main(int argc, char ** argv)
     std::clog << opt_desc;
     return 0;
   }
-  McTopo mctop(tree_files[0]);
-  std::cout << "Loading files:"<< std::endl;
+  //McTopo mctop(tree_files[0]);
+  TChain * chain = new TChain(tree_files[0].c_str(), tree_files[0].c_str());
   for(int i=1;i<tree_files.size(); i++)
   {
     std::cout << tree_files[i];
-    mctop.AddFile(tree_files[i].c_str());
+    chain->AddFile(tree_files[i].c_str());
     if(i+1 < tree_files.size())  std::cout << ',';
   }
+  RootMCTopo mctop(chain);
+  std::cout << "Loading files:"<< std::endl;
   std::cout << std::endl;
   int count_option=NONE;
   if(opt.count("nogamma")) count_option |=  REDUCE_PHOTON;
   if(opt.count("reduce"))  count_option |=  REDUCE;
-  auto TopoMap = mctop.Count(N,count_option);
+  //auto TopoMap = mctop.Count(N,count_option);
+  auto TopoMap = count_topologies(&mctop, N,count_option);
   size_t final_state_width=9;
   size_t topology_info_width=8;
   std::multimap<Long64_t, decay_topology_t> CountMap;
