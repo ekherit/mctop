@@ -133,10 +133,12 @@ int main(int argc, char ** argv)
   std::string tree_name;
   std::vector<std::string> tree_files;
   unsigned long long N;
+  bool not_print_hash=false;
   opt_desc.add_options()
     ("help,h","Print this help")
     ("nogamma,g", "Reduce radiative gamma")
     ("reduce,r", "Merge topology and antitopology")
+    ("nohash", "do not print hash")
     ("number,N",po::value<unsigned long long>(&N)->default_value(0),"Number of event to proceed")
     ("tree_files", po::value<std::vector<std::string>>(&tree_files), "List of files")
     ;
@@ -159,6 +161,7 @@ int main(int argc, char ** argv)
     std::clog << opt_desc;
     return 0;
   }
+  not_print_hash = opt.count("nohash");
   //McTopo mctop(tree_files[0]);
   TChain * chain = new TChain(tree_files[0].c_str(), tree_files[0].c_str());
   for(int i=1;i<tree_files.size(); i++)
@@ -196,12 +199,15 @@ int main(int argc, char ** argv)
     auto & top = it.second;
     std::cout << fmt_data % (topology_counter+1) % it.first % format(final_state(top),final_state_width) % format(to_string(top),topology_info_width);
     std::cout << std::hex;
-    for(auto hi = begin(top[boost::graph_bundle].hash_list); hi!=end(top[boost::graph_bundle].hash_list); hi++)
+    if(!not_print_hash)
     {
-      auto tmp_hi = hi;
-      std::cout << *hi;
-      tmp_hi++;
-      if(tmp_hi!=end(top[boost::graph_bundle].hash_list)) std::cout << ',';
+      for(auto hi = begin(top[boost::graph_bundle].hash_list); hi!=end(top[boost::graph_bundle].hash_list); hi++)
+      {
+        auto tmp_hi = hi;
+        std::cout << *hi;
+        tmp_hi++;
+        if(tmp_hi!=end(top[boost::graph_bundle].hash_list)) std::cout << ',';
+      }
     }
     std::cout << std::endl;
     std::cout << std::dec;
