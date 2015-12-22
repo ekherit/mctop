@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdexcept>
 #include <iomanip>
+#include <algorithm>
 
 #include <boost/format.hpp>
 #include <boost/program_options.hpp>
@@ -134,6 +135,8 @@ int main(int argc, char ** argv)
   std::vector<std::string> tree_files;
   unsigned long long N;
   bool not_print_hash=false;
+  std::string hashes;
+  std::list <unsigned long> hash_list;
   opt_desc.add_options()
     ("help,h","Print this help")
     ("nogamma,g", "Reduce radiative gamma")
@@ -141,6 +144,7 @@ int main(int argc, char ** argv)
     ("nohash", "do not print hash")
     ("number,N",po::value<unsigned long long>(&N)->default_value(0),"Number of event to proceed")
     ("tree_files", po::value<std::vector<std::string>>(&tree_files), "List of files")
+    ("hash",po::value<std::string>(&hashes),"Coma separated list of hashes to show")
     ;
   po::positional_options_description pos;
   pos.add("tree_files",-1);
@@ -160,6 +164,17 @@ int main(int argc, char ** argv)
     std::cout << "Usage: mctop <mctopo_tree_name> <file1> [file2] .. [fileN]" << std::endl;
     std::clog << opt_desc;
     return 0;
+  }
+  if(opt.count("hash"))
+  {
+    std::istringstream is(hashes);
+    char comma;
+    unsigned long h;
+    while(is>>std::hex>>h)
+    {
+      hash_list.push_back(h);
+      is>>comma;
+    }
   }
   not_print_hash = opt.count("nohash");
   //McTopo mctop(tree_files[0]);
@@ -197,20 +212,28 @@ int main(int argc, char ** argv)
   for(auto & it : CountMap)
   {
     auto & top = it.second;
-    std::cout << fmt_data % (topology_counter+1) % it.first % format(final_state(top),final_state_width) % format(to_string(top),topology_info_width);
-    std::cout << std::hex;
-    if(!not_print_hash)
+    auto top_hash_list = top[boost::graph_bundle].hash_list;
+    auto begin_hash = begin(top[boost::graph_bundle].hash_list);
+    auto end_hash = end(top[boost::graph_bundle].hash_list);
+    bool noskip = hash_list.empty();
+    for(auto filter_hash : hash_list) noskip |=  std::find(begin_hash,end_hash,filter_hash) != end_hash;
+    if(noskip)
     {
-      for(auto hi = begin(top[boost::graph_bundle].hash_list); hi!=end(top[boost::graph_bundle].hash_list); hi++)
+      std::cout << fmt_data % (topology_counter+1) % it.first % format(final_state(top),final_state_width) % format(to_string(top),topology_info_width);
+      std::cout << std::hex;
+      if(!not_print_hash)
       {
-        auto tmp_hi = hi;
-        std::cout << *hi;
-        tmp_hi++;
-        if(tmp_hi!=end(top[boost::graph_bundle].hash_list)) std::cout << ',';
+        for(auto hi = begin_hash; hi!= end_hash; hi++)
+        {
+          auto tmp_hi = hi;
+          std::cout << *hi;
+          tmp_hi++;
+          if(tmp_hi!= end_hash) std::cout << ',';
+        }
       }
+      std::cout << std::endl;
+      std::cout << std::dec;
     }
-    std::cout << std::endl;
-    std::cout << std::dec;
     topology_counter++;
     event_counter+=it.first;
   }
