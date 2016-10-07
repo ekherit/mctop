@@ -145,6 +145,7 @@ int main(int argc, char ** argv)
     ("number,N",po::value<unsigned long long>(&N)->default_value(0),"Number of event to proceed")
     ("tree_files", po::value<std::vector<std::string>>(&tree_files), "List of files")
     ("hash",po::value<std::string>(&hashes),"Coma separated list of hashes to show")
+    ("bfs", "Count by final state")
     ;
   po::positional_options_description pos;
   pos.add("tree_files",-1);
@@ -206,36 +207,61 @@ int main(int argc, char ** argv)
   std::string hstrfmt ="%="+std::to_string(final_state_width)+"s  %="+ std::to_string(topology_info_width)+"s %-10s";
   boost::format fmt_head("%3s%8s "+ hstrfmt);
   boost::format fmt_data("%3d%8d  %-s  %-s ");
-  std::cout << fmt_head % "#" % "count"  % "final st." % "topology" % "hash list" << std::endl;
   Long64_t event_counter =0;
   Long64_t topology_counter=0;
-  for(auto & it : CountMap)
+  if(!opt.count("bfs"))
   {
-    auto & top = it.second;
-    auto top_hash_list = top[boost::graph_bundle].hash_list;
-    auto begin_hash = begin(top[boost::graph_bundle].hash_list);
-    auto end_hash = end(top[boost::graph_bundle].hash_list);
-    bool noskip = hash_list.empty();
-    for(auto filter_hash : hash_list) noskip |=  std::find(begin_hash,end_hash,filter_hash) != end_hash;
-    if(noskip)
+    std::cout << fmt_head % "#" % "count"  % "final st." % "topology" % "hash list" << std::endl;
+    for(auto & it : CountMap)
     {
-      std::cout << fmt_data % (topology_counter+1) % it.first % format(final_state(top),final_state_width) % format(to_string(top),topology_info_width);
-      std::cout << std::hex;
-      if(!not_print_hash)
+      auto & top = it.second;
+      auto top_hash_list = top[boost::graph_bundle].hash_list;
+      auto begin_hash = begin(top[boost::graph_bundle].hash_list);
+      auto end_hash = end(top[boost::graph_bundle].hash_list);
+      bool noskip = hash_list.empty();
+      for(auto filter_hash : hash_list) noskip |=  std::find(begin_hash,end_hash,filter_hash) != end_hash;
+      if(noskip)
       {
-        for(auto hi = begin_hash; hi!= end_hash; hi++)
+        std::cout << fmt_data % (topology_counter+1) % it.first % format(final_state(top),final_state_width) % format(to_string(top),topology_info_width);
+        std::cout << std::hex;
+        if(!not_print_hash)
         {
-          auto tmp_hi = hi;
-          std::cout << *hi;
-          tmp_hi++;
-          if(tmp_hi!= end_hash) std::cout << ',';
+          for(auto hi = begin_hash; hi!= end_hash; hi++)
+          {
+            auto tmp_hi = hi;
+            std::cout << *hi;
+            tmp_hi++;
+            if(tmp_hi!= end_hash) std::cout << ',';
+          }
         }
+        std::cout << std::endl;
+        std::cout << std::dec;
       }
-      std::cout << std::endl;
-      std::cout << std::dec;
+      topology_counter++;
+      event_counter+=it.first;
     }
-    topology_counter++;
-    event_counter+=it.first;
+  }
+  else
+  {
+    std::map<std::string, unsigned> fsMap;
+    std::multimap<Long64_t, std::string> fsCountMap;
+    for(auto & it : CountMap)
+    {
+      auto & top = it.second;
+      auto top_hash_list = top[boost::graph_bundle].hash_list;
+      auto begin_hash = begin(top[boost::graph_bundle].hash_list);
+      auto end_hash = end(top[boost::graph_bundle].hash_list);
+      fsMap[final_state(top)] +=  it.first;
+    };
+    for(auto & it : fsMap)
+    {
+      fsCountMap.insert(std::pair<Long64_t, std::string>(it.second,it.first));
+      event_counter+=it.second;
+    }
+    for(auto & it : fsCountMap)
+    {
+      std::cout << std::setw(20) << it.first << "     " << std::setw(10) << std::left << it.second << std::endl;
+    }
   }
   std::cout << "Total number of events: " << event_counter << std::endl;
 };
